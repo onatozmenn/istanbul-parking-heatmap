@@ -28,7 +28,7 @@ function App() {
     useTimeSlot(urlInit.timeSlot);
   const { viewState, onViewStateChange, flyTo } = useMapView(urlInit.viewState);
   const [selectedBlock, setSelectedBlock] = useState<BlockData | null>(null);
-  const [columnStyle, setColumnStyle] = useState<ColumnStyle>("hexgrid");
+  const [columnStyle, setColumnStyle] = useState<ColumnStyle>("columns");
   const search = useSearch(blocks, timeSlot);
   const comparison = useComparison(urlInit.comparing, urlInit.refDow, urlInit.refHour);
 

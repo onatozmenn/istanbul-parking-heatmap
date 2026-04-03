@@ -29,14 +29,10 @@ function blockPathToRect(
 }
 
 function createHexGridLayer(blocks: BlockData[], slotIdx: number): Layer[] {
-  // Spread into a new array so deck.gl sees a fresh data reference and
-  // re-runs the weight accessors (aggregation layers skip re-aggregation
-  // when the data reference is identical, even with a new layer ID).
-  const data = [...blocks];
   return [
     new HexagonLayer<BlockData>({
       id: `parking-hexgrid-${slotIdx}`,
-      data,
+      data: blocks,
       getPosition: (d) => [d.lng, d.lat],
       getColorWeight: (d) => d.slots[slotIdx] ?? 0,
       colorAggregation: "MEAN",

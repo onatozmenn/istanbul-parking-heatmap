@@ -8,7 +8,7 @@ const STYLE_LABELS: Record<ColumnStyle, string> = {
   bars: "Street Bars",
 };
 
-const STYLE_ORDER: ColumnStyle[] = ["hexgrid", "columns", "bars"];
+const STYLE_ORDER: ColumnStyle[] = ["columns", "bars", "hexgrid"];
 
 interface LegendProps {
   is3D?: boolean;
