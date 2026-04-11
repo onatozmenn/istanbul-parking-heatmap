@@ -1,12 +1,13 @@
 # SF Parking Heatmap
 
+[![Build](https://github.com/wolfiesch/sf-parking-heatmap/actions/workflows/build.yml/badge.svg)](https://github.com/wolfiesch/sf-parking-heatmap/actions/workflows/build.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+
 A temporal heatmap of San Francisco's metered parking. Pick any day-of-week and hour, and the map shows you typical occupancy across every metered block in the city — built from ~206M meter transactions pulled directly from the SF Open Data SODA API.
 
-**Live**: https://sf-parking-heatmap.vercel.app *(if your deployment is at a different URL, edit this line)*
+**Live**: https://sf-parking-heatmap.vercel.app
 
-![SF Parking Heatmap](public/data/screenshot.png)
-
-> No screenshot yet — drop one at `public/data/screenshot.png` and it will appear here.
+![SF Parking Heatmap](public/data/screenshot.jpg)
 
 ## What it does
 
