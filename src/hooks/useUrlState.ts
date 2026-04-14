@@ -213,8 +213,6 @@ export function useUrlSync(state: UrlSyncState) {
       ilat: state.isoLat ?? null,
       ilng: state.isoLng ?? null,
       imax: state.isoMaxMinutes ?? null,
-      vm: null,
-      station: null,
     });
 
     if (hash === prevHashRef.current) return;
@@ -262,8 +260,6 @@ export function useUrlSync(state: UrlSyncState) {
     ilat: state.isoLat,
     ilng: state.isoLng,
     imax: state.isoMaxMinutes,
-    vm: state.viewMode,
-    station: state.selectedStationId,
   });
 
   useEffect(() => {
@@ -279,9 +275,7 @@ export function useUrlSync(state: UrlSyncState) {
       prev.iso !== (state.isoActive ?? undefined) ||
       prev.ilat !== (state.isoLat ?? undefined) ||
       prev.ilng !== (state.isoLng ?? undefined) ||
-      prev.imax !== (state.isoMaxMinutes ?? undefined) ||
-      prev.vm !== (state.viewMode ?? undefined) ||
-      prev.station !== (state.selectedStationId ?? undefined);
+      prev.imax !== (state.isoMaxMinutes ?? undefined);
 
     if (changed) {
       prevDiscreteRef.current = {
@@ -295,15 +289,12 @@ export function useUrlSync(state: UrlSyncState) {
         ilat: state.isoLat,
         ilng: state.isoLng,
         imax: state.isoMaxMinutes,
-        vm: state.viewMode,
-        station: state.selectedStationId,
       };
       writeUrl(true);
     }
   }, [state.timeSlot.dow, state.timeSlot.hour, state.selectedBlockId,
       state.searchLat, state.searchLng, state.comparing,
       state.isoActive, state.isoLat, state.isoLng, state.isoMaxMinutes,
-      state.viewMode, state.selectedStationId,
       writeUrl, state.isPlaying]);
 
   // Handle popstate (browser back/forward)
