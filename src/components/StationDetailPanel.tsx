@@ -39,7 +39,7 @@ export function StationDetailPanel({ station, timeSlot, onClose }: StationDetail
       <div className="px-4 py-3 border-b border-gray-800/30">
         <div className="flex items-center gap-2 mb-2">
           <Bike size={14} className="text-teal-400" />
-          <span className="text-xs text-gray-400">Current Demand</span>
+          <span className="text-xs text-gray-400">Mevcut Talep</span>
         </div>
         <div className="flex items-baseline gap-2">
           <span
@@ -56,7 +56,7 @@ export function StationDetailPanel({ station, timeSlot, onClose }: StationDetail
           </span>
         </div>
         <p className="text-xs text-gray-500 mt-1">
-          {station.capacity} docks - Arrivals: {arrivals > 0 ? `${Math.round(arrivals * 100)}%` : "N/A"}
+          {station.capacity} yuva - Varış: {arrivals > 0 ? `${Math.round(arrivals * 100)}%` : "N/A"}
         </p>
       </div>
 
@@ -64,7 +64,7 @@ export function StationDetailPanel({ station, timeSlot, onClose }: StationDetail
       <div className="px-4 py-3">
         <div className="flex items-center gap-2 mb-2">
           <Clock size={14} className="text-gray-400" />
-          <span className="text-xs text-gray-400">Weekly Demand Profile</span>
+          <span className="text-xs text-gray-400">Haftalık Talep Profili</span>
         </div>
 
         <div className="flex gap-px">
@@ -136,7 +136,7 @@ function BusiestQuietestTimes({ slots }: { slots: number[] }) {
   }
 
   if (businessSlots.length === 0) {
-    return <p className="text-xs text-gray-500">No demand data</p>;
+    return <p className="text-xs text-gray-500">Talep verisi yok</p>;
   }
 
   businessSlots.sort((a, b) => a.demand - b.demand);
@@ -147,7 +147,7 @@ function BusiestQuietestTimes({ slots }: { slots: number[] }) {
   return (
     <div className="space-y-2">
       <div>
-        <p className="text-[10px] text-teal-400 font-medium mb-1">Quietest (bikes available)</p>
+        <p className="text-[10px] text-teal-400 font-medium mb-1">En Sakin (bisiklet müsait)</p>
         {quietest.map((s, i) => (
           <p key={i} className="text-xs text-gray-300">
             {dayName(s.dow)} {formatHour(s.hour)} - {Math.round(s.demand * 100)}%
@@ -155,7 +155,7 @@ function BusiestQuietestTimes({ slots }: { slots: number[] }) {
         ))}
       </div>
       <div>
-        <p className="text-[10px] text-cyan-400 font-medium mb-1">Busiest (bikes scarce)</p>
+        <p className="text-[10px] text-cyan-400 font-medium mb-1">En Yoğun (bisiklet az)</p>
         {busiest.map((s, i) => (
           <p key={i} className="text-xs text-gray-300">
             {dayName(s.dow)} {formatHour(s.hour)} - {Math.round(s.demand * 100)}%

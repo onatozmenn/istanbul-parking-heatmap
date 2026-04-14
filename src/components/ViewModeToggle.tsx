@@ -2,9 +2,9 @@ import { Car, Bike, Layers } from "lucide-react";
 import type { ViewMode } from "../types";
 
 const MODES: { key: ViewMode; label: string; Icon: typeof Car }[] = [
-  { key: "parking", label: "Parking", Icon: Car },
-  { key: "bike", label: "Bikes", Icon: Bike },
-  { key: "correlation", label: "Overlap", Icon: Layers },
+  { key: "parking", label: "Park", Icon: Car },
+  { key: "bike", label: "Bisiklet", Icon: Bike },
+  { key: "correlation", label: "Örtüşme", Icon: Layers },
 ];
 
 interface ViewModeToggleProps {
@@ -28,7 +28,7 @@ export function ViewModeToggle({ mode, onModeChange }: ViewModeToggleProps) {
                   : "bg-blue-500/25 text-blue-300 border border-blue-500/40"
               : "text-gray-400 border border-transparent hover:text-gray-200 hover:bg-gray-800/50"
           }`}
-          aria-label={`Switch to ${label} view`}
+          aria-label={`${label} görünümüne geç`}
         >
           <Icon size={14} />
           <span>{label}</span>

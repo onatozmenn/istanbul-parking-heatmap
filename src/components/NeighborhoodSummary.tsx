@@ -54,9 +54,9 @@ export function NeighborhoodSummary({ blocks, timeSlot }: NeighborhoodSummaryPro
     if (mostlyNotEnforced) {
       return (
         <div className="absolute top-16 right-4 z-20 rounded-xl bg-gray-950/80 backdrop-blur-md border border-gray-800/50 p-3 w-56">
-          <p className="text-xs text-blue-400 font-medium">Meters Off</p>
+          <p className="text-xs text-blue-400 font-medium">Sayaçlar Kapalı</p>
           <p className="text-[10px] text-gray-500 mt-1">
-            Free street parking during non-enforced hours
+            Sayaçların kapalı olduğu saatlerde ücretsiz park
           </p>
         </div>
       );
@@ -77,7 +77,7 @@ export function NeighborhoodSummary({ blocks, timeSlot }: NeighborhoodSummaryPro
         <div className="flex items-center gap-1.5 mb-1">
           <TrendingUp size={12} className="text-red-400" />
           <span className="text-[10px] text-gray-400 font-medium uppercase tracking-wider">
-            Busiest
+            En Yoğun
           </span>
         </div>
         {busiest.map((h) => (
@@ -97,7 +97,7 @@ export function NeighborhoodSummary({ blocks, timeSlot }: NeighborhoodSummaryPro
         <div className="flex items-center gap-1.5 mb-1">
           <TrendingDown size={12} className="text-green-400" />
           <span className="text-[10px] text-gray-400 font-medium uppercase tracking-wider">
-            Most Available
+            En Müsait
           </span>
         </div>
         {emptiest.map((h) => (

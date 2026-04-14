@@ -1,153 +1,122 @@
-# SF Parking Heatmap
+# İstanbul Park Isı Haritası
 
-[![Build](https://github.com/wolfiesch/sf-parking-heatmap/actions/workflows/build.yml/badge.svg)](https://github.com/wolfiesch/sf-parking-heatmap/actions/workflows/build.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-A temporal heatmap of San Francisco's metered parking. Pick any day-of-week and hour, and the map shows you typical occupancy across every metered block in the city — built from ~206M meter transactions pulled directly from the SF Open Data SODA API.
+İstanbul İSPARK otoparkları için zamansal doluluk ısı haritası. Herhangi bir haftanın gününü ve saatini seçin; harita şehirdeki her İSPARK otoparkının tahmini doluluk oranını göstersin — İBB Açık Veri Portalı'ndaki İSPARK API'sinden çekilen gerçek otopark verileri kullanılarak oluşturulmuştur.
 
-**Live**: https://sfparking.wolfie.gg
+## Ne yapar
 
-![SF Parking Heatmap](public/data/screenshot.jpg)
+- **Otopark başına 168 slotluk haftalık profil**: 7 gün × 24 saat doluluk oranı, İSPARK anlık verilerinden türetilir
+- **Çok katmanlı görselleştirme**: şehir ölçeğinde ısı haritası → mahalle ölçeğinde 3D sütunlar → sokak ölçeğinde yol segmentleri ve bireysel park yeri noktaları
+- **Zaman oynatma**: hafta boyunca kaydırın veya oynat düğmesine basarak talebin nasıl değiştiğini izleyin
+- **Otopark detay paneli**: otopark bazında saatlik doluluk dağılımı, kapasite, çalışma saatleri
+- **Karşılaştırma modu**: referans zaman dilimini sabitleyin, başka bir dilimle farkları görün
+- **Arama + yarıçap**: belirli bir adresi bulun ve çevresindeki park durumunu inceleyin
+- **İzokron modu**: bir başlangıç noktası seçin ve N dakikada araba/bisiklet/yürüyüşle ne kadar uzağa gidebileceğinizi görün (yerel Valhalla yönlendirme kullanır — aşağıya bakın)
+- **Derin bağlantılı URL durumu**: her seçim (zaman, görünüm, otopark, arama, izokron) URL'de saklanır, böylece her görünüm paylaşılabilir
 
-## What it does
+## Veri kaynakları
 
-- **168-slot weekly profile per block**: 7 days × 24 hours of occupancy, computed from real meter sessions
-- **Multi-tier visualization**: heatmap at city zoom → 3D columns at neighborhood zoom → block-level paths and individual meter dots at street zoom
-- **Time playback**: scrub through the week or hit play to watch demand pulse
-- **Block detail panel**: per-block hour-by-hour breakdown, supply, enforcement schedule
-- **Comparison mode**: pin a reference time, see deltas vs. any other slot
-- **Search + radius**: find a specific address and see what parking looks like nearby
-- **Isochrone mode**: pick an origin and see how far you can drive/bike/walk in N minutes (uses local Valhalla routing — see Optional below)
-- **Bike share view**: overlay Bay Wheels station demand and visualize correlation with parking pressure
-- **Deeplinkable URL state**: every selection (time, view, block, search, isochrone) is in the URL, so any view is shareable
+Tüm veriler herkese açık, kimlik doğrulama gerektirmeyen uç noktalardan gelir. **Yapılandırılacak API anahtarı yoktur.**
 
-## Data sources
-
-All data comes from public, unauthenticated endpoints. **There are no API keys to configure.**
-
-| Source | Dataset | Used for |
+| Kaynak | API | Kullanım amacı |
 |---|---|---|
-| [SF Open Data SODA API](https://data.sfgov.org) | `8vzz-qzz9` (Parking Meters) | Active meter locations, block centroids |
-| [SF Open Data SODA API](https://data.sfgov.org) | `imvp-dq3v` (Meter Operating Schedules and Transaction Counts) | ~206M session records aggregated into 168-slot occupancy profiles |
-| [SF 311 service requests](https://data.sfgov.org) | (via SODA) | Off-hours parking pressure scores |
-| Bay Wheels GBFS | bike share station status feed | Station capacity and trip data for the bike view |
+| [İBB Açık Veri Portalı](https://data.ibb.gov.tr) | `api.ibb.gov.tr/ispark/Park` | İSPARK otopark konumları, kapasiteler, anlık doluluk |
+| İSPARK API | Anlık doluluk + ilçe/tip çarpanları | 168 slotluk haftalık doluluk profilleri |
 
-The map basemap is [CARTO Dark Matter](https://carto.com/basemaps/) (open vector tiles, no token).
+Harita altlığı [CARTO Dark Matter](https://carto.com/basemaps/) açık vektör haritasıdır (token gerekmez).
 
-## Tech stack
+## Teknoloji yığını
 
 - **Frontend**: Vite 7 + React 19 + TypeScript + Tailwind CSS v4
-- **Mapping**: [deck.gl](https://deck.gl) v9 layers on top of [MapLibre GL](https://maplibre.org) via `react-map-gl`
-- **Pipeline**: Python 3 standard library only — no `requirements.txt` needed
-- **Routing (optional)**: [Valhalla](https://github.com/valhalla/valhalla) running locally in Docker for isochrone computation
+- **Haritalama**: [deck.gl](https://deck.gl) v9 katmanları, [MapLibre GL](https://maplibre.org) üzerinde `react-map-gl` ile
+- **Veri hattı**: Python 3 standart kütüphanesi — `requirements.txt` gerekmez
+- **Yönlendirme (opsiyonel)**: İzokron hesaplaması için Docker'da çalışan [Valhalla](https://github.com/valhalla/valhalla)
 
-## Setup
+## Kurulum
 
 ```bash
-# 1. Install JS deps
+# 1. JS bağımlılıklarını kur
 pnpm install
 
-# 2. Build the data (one-time, takes a few minutes)
-pnpm fetch-meters          # ~28k metered blocks → public/data/meter_locations.json
-pnpm fetch-enforcement     # block-level enforcement schedules
-pnpm fetch-311             # 311 pressure scores
-pnpm aggregate             # paginated GROUP BY over the full transaction dataset
+# 2. Veriyi çek (tek seferlik, birkaç dakika sürer)
+pnpm fetch-data            # İSPARK API'den otopark verisi çeker → public/data/*.json
 
-# Or just run the whole pipeline:
+# Veya pipeline olarak:
 pnpm pipeline
 
-# 3. Start the dev server
+# 3. Geliştirme sunucusunu başlat
 pnpm dev
 ```
 
-Then open http://localhost:5173.
+Ardından http://localhost:5173 adresini açın.
 
-## Project layout
+## Proje yapısı
 
 ```
-sf-parking-heatmap/
-├── public/data/        # Generated JSON consumed by the frontend (committed)
-│   ├── meter_locations.json
-│   ├── parking_week.json    # The 168-slot occupancy profiles (~3 MB)
-│   ├── enforcement_schedules.json
-│   ├── pressure_311.json
-│   ├── bike_week.json       # Bay Wheels demand (optional)
-│   └── isochrones/          # Pre-computed Valhalla isochrones (gitignored)
-├── scripts/            # Python data pipeline
-│   ├── fetch_meter_locations.py
-│   ├── fetch_enforcement_schedules.py
-│   ├── fetch_311_pressure.py
-│   ├── fetch_parking_supply.py
-│   ├── aggregate_parking.py        # paginated SODA GROUP BY → weekly profiles
-│   ├── compute_block_paths.py      # PCA-aligned 2-point block geometries
-│   ├── aggregate_bike_trips.py
-│   ├── build_speed_profiles.py
-│   └── compute_isochrones.py       # batch Valhalla calls
+istanbul-parking-heatmap/
+├── public/data/        # Frontend tarafından kullanılan üretilmiş JSON dosyaları
+│   ├── meter_locations.json      # Otopark konumları ve kapasiteleri
+│   ├── parking_week.json         # 168 slotluk doluluk profilleri
+│   ├── enforcement_schedules.json # Çalışma saatleri
+│   └── pressure_311.json         # Basınç skorları
+├── scripts/            # Python veri hattı
+│   └── fetch_ispark_data.py      # İSPARK API → haftalık profil üretimi
 ├── src/
 │   ├── App.tsx
-│   ├── components/     # Map, panels, controls, tooltips
-│   ├── hooks/          # Data loading, time slot, URL state, isochrones
-│   ├── layers/         # deck.gl layer factories per zoom tier
-│   ├── lib/            # SODA client, color scales, geo helpers
+│   ├── components/     # Harita, paneller, kontroller, ipuçları
+│   ├── hooks/          # Veri yükleme, zaman dilimi, URL durumu, izokronlar
+│   ├── layers/         # deck.gl katman fabrikaları (zoom seviyesine göre)
+│   ├── lib/            # Renk ölçekleri, coğrafi yardımcılar
 │   └── types.ts
-└── docker-compose.yml  # Optional Valhalla service for isochrones
+└── docker-compose.yml  # İzokronlar için opsiyonel Valhalla servisi
 ```
 
-## How occupancy is computed
+## Doluluk nasıl hesaplanır
 
-The transaction dataset (`imvp-dq3v`) gives one row per paid session with `street_block`, `session_start_dt`, etc. The pipeline:
+İSPARK API'si (`api.ibb.gov.tr/ispark/Park`) her otopark için anlık `capacity` ve `emptyCapacity` değerlerini döndürür. Veri hattı:
 
-1. **Aggregates server-side** with `date_extract_dow()` and `date_extract_hh()` over a 90-day window — `aggregate_parking.py` makes a few paginated GROUP BY calls instead of pulling raw rows
-2. **Maps SODA day-of-week** (1=Sun..7=Sat) **to ISO** (0=Mon..6=Sun)
-3. **Converts session counts to occupancy ratio**: `(sessions_per_week × avg_session_hours × compliance_factor) / meter_count`, clamped to `[0, 1]`
-   - `AVG_SESSION_HOURS = 1.2` (SFMTA average)
-   - `COMPLIANCE_FACTOR = 1.33` (accounts for unpaid parkers)
-4. **Blends in 311 pressure scores** for off-hours when meters aren't enforced
+1. **Anlık doluluk oranını hesaplar**: `(capacity - emptyCapacity) / capacity`
+2. **İlçe çarpanı uygular**: merkezi ilçeler (Fatih, Beşiktaş, Beyoğlu, Şişli) daha yüksek çarpanla ağırlıklandırılır
+3. **Park tipi çarpanı uygular**: yol üstü parklar kapalı otoparklara göre daha yoğun kabul edilir
+4. **168 slotluk haftalık profil üretir**: İstanbul'un park alışkanlıklarına uygun saatlik kalıplar (sabah piki, öğle yoğunluğu, akşam trafiği, Cuma akşamı etkisi, hafta sonu azalması)
+5. **Çalışma saatlerine göre uygulama takvimi oluşturur**: çalışma saatleri dışında doluluk sıfıra düşer
 
-The result is a 168-element array per block (`dow * 24 + hour`) shipped as a single JSON file.
+Sonuç, otopark başına 168 elemanlı bir dizi (`gün * 24 + saat`) olarak tek bir JSON dosyasında sunulur.
 
-## Available scripts
+## Kullanılabilir komutlar
 
 ```bash
-pnpm dev                  # Vite dev server
-pnpm build                # Production build (tsc -b && vite build)
+pnpm dev                  # Vite geliştirme sunucusu
+pnpm build                # Üretim derlemesi (tsc -b && vite build)
 pnpm lint                 # ESLint
-pnpm preview              # Preview the built bundle
+pnpm preview              # Derlenmiş paketi önizle
 
-# Data pipeline
-pnpm fetch-meters         # Active meter locations
-pnpm fetch-enforcement    # Enforcement schedules
-pnpm fetch-311            # 311 pressure data
-pnpm fetch-supply         # Total parking spaces per block
-pnpm compute-paths        # PCA block geometry
-pnpm aggregate            # Aggregate sessions → weekly profiles
-pnpm aggregate-bikes      # Bay Wheels demand profiles
-pnpm pipeline             # Run the core pipeline end-to-end
-pnpm pipeline-full        # Core pipeline + speed profiles + isochrones
+# Veri hattı
+pnpm fetch-data           # İSPARK API'den veri çek
+pnpm pipeline             # Tüm veri hattını çalıştır
 ```
 
-## Optional: isochrones
+## Opsiyonel: İzokronlar
 
-The isochrone view (drive/bike/walk reachability from any point) needs a routing engine. The repo includes a `docker-compose.yml` for [Valhalla](https://github.com/valhalla/valhalla):
+İzokron görünümü (herhangi bir noktadan araba/bisiklet/yürüyüş erişilebilirliği) bir yönlendirme motoruna ihtiyaç duyar. Repo, [Valhalla](https://github.com/valhalla/valhalla) için bir `docker-compose.yml` içerir:
 
 ```bash
-docker compose up -d           # Downloads CA OSM extract on first run
-pnpm build-speed-profiles      # Cluster historical speeds into 6 profiles
-pnpm compute-isochrones        # Pre-compute isochrones for the grid
+docker compose up -d           # İlk çalıştırmada Türkiye OSM verisini indirir
 ```
 
-If you don't care about isochrones, skip this — the app degrades gracefully.
+İzokronları umursamıyorsanız, bu adımı atlayın — uygulama sorunsuz çalışmaya devam eder.
 
-## Caveats
+## Dikkat edilmesi gerekenler
 
-- **Occupancy is an estimate.** It uses a fixed `AVG_SESSION_HOURS` and a `COMPLIANCE_FACTOR` for unpaid parkers. Both are tunable in `scripts/aggregate_parking.py`.
-- **Only metered blocks.** Non-metered streets aren't in the dataset.
-- **Typical week, not real-time.** The pipeline aggregates the trailing 90 days into a typical-week profile. There's no live feed.
-- **`enforced` mask is per-block.** During non-enforced hours the heatmap blends in 311 pressure scores rather than using meter sessions.
+- **Doluluk tahminidir.** Anlık İSPARK verisi, ilçe/tip çarpanları ve saatlik kalıplar kullanılarak simüle edilir.
+- **Sadece İSPARK otoparkları.** Özel otoparklar ve sokak üzeri düzensiz park veride yoktur.
+- **Tipik hafta, gerçek zamanlı değil.** Veri hattı İSPARK anlık verisinden tipik bir haftalık profil üretir; canlı akış yoktur.
+- **Çalışma saatleri otopark bazındadır.** Çalışma saatleri dışında doluluk sıfır olarak gösterilir.
 
-## License
+## Lisans
 
-MIT — see [LICENSE](LICENSE).
+MIT — [LICENSE](LICENSE) dosyasına bakın.
 
 ## Acknowledgments
 

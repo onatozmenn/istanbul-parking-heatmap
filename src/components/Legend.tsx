@@ -5,9 +5,9 @@ import type { ColumnStyle } from "../layers/parkingColumnLayer";
 import type { TransportMode, ViewMode } from "../types";
 
 const STYLE_LABELS: Record<ColumnStyle, string> = {
-  hexgrid: "Hex Grid",
-  columns: "Columns",
-  bars: "Street Bars",
+  hexgrid: "Altıgen",
+  columns: "Sütunlar",
+  bars: "Sokak Çubukları",
 };
 
 const STYLE_ORDER: ColumnStyle[] = ["columns", "bars", "hexgrid"];
@@ -48,7 +48,7 @@ export function Legend({ is3D, comparing, columnStyle, onColumnStyleChange, isoc
   return (
     <div className="absolute bottom-28 right-4 z-20 rounded-xl bg-gray-950/80 backdrop-blur-md px-3 py-2.5 border border-gray-800/50">
       <p className="text-[10px] text-gray-400 mb-1.5 font-medium uppercase tracking-wider">
-        Occupancy
+        Doluluk
       </p>
       <div
         className="h-2.5 w-36 rounded-full"
@@ -63,9 +63,9 @@ export function Legend({ is3D, comparing, columnStyle, onColumnStyleChange, isoc
         <span>100%</span>
       </div>
       <div className="flex justify-between mt-0.5 text-[9px]">
-        <span className="text-green-400">Available</span>
-        <span className="text-yellow-400">Moderate</span>
-        <span className="text-red-400">Difficult</span>
+        <span className="text-green-400">Müsait</span>
+        <span className="text-yellow-400">Orta</span>
+        <span className="text-red-400">Zor</span>
       </div>
 
       {/* 3D height explanation */}
@@ -75,7 +75,7 @@ export function Legend({ is3D, comparing, columnStyle, onColumnStyleChange, isoc
             <div className="w-3 h-3 rounded-sm bg-gray-500" style={{
               clipPath: "polygon(20% 100%, 80% 100%, 65% 30%, 35% 30%)",
             }} />
-            <span className="text-[9px] text-gray-400">Height = occupancy level</span>
+            <span className="text-[9px] text-gray-400">Yükseklik = doluluk seviyesi</span>
           </div>
         </div>
       )}
@@ -83,7 +83,7 @@ export function Legend({ is3D, comparing, columnStyle, onColumnStyleChange, isoc
       {/* 3D style toggle (visible at column zoom tier) */}
       {is3D && columnStyle && onColumnStyleChange && (
         <div className="mt-2 pt-2 border-t border-gray-800/40">
-          <p className="text-[9px] text-gray-500 mb-1">3D Style</p>
+          <p className="text-[9px] text-gray-500 mb-1">3B Stil</p>
           <div className="flex gap-1">
             {STYLE_ORDER.map((s) => (
               <button
@@ -106,7 +106,7 @@ export function Legend({ is3D, comparing, columnStyle, onColumnStyleChange, isoc
       <div className="mt-2 pt-2 border-t border-gray-800/40">
         <div className="flex items-center gap-1.5 mb-1">
           <div className="w-3 h-2 rounded-sm" style={{ backgroundColor: "rgba(59, 130, 246, 0.6)" }} />
-          <span className="text-[9px] text-gray-400">Free Parking (meters off)</span>
+          <span className="text-[9px] text-gray-400">Ücretsiz Park (sayaçlar kapalı)</span>
         </div>
         <div className="flex items-center gap-1.5">
           <div
@@ -115,7 +115,7 @@ export function Legend({ is3D, comparing, columnStyle, onColumnStyleChange, isoc
               background: "linear-gradient(to right, rgba(34,197,94,0.55), rgba(234,179,8,0.55), rgba(239,68,68,0.55))",
             }}
           />
-          <span className="text-[9px] text-gray-400">Estimated from complaints</span>
+          <span className="text-[9px] text-gray-400">Şikayetlerden tahmin</span>
         </div>
       </div>
     </div>
@@ -131,7 +131,7 @@ function DeltaLegend({ is3D }: { is3D?: boolean }) {
   return (
     <div className="absolute bottom-28 right-4 z-20 rounded-xl bg-gray-950/80 backdrop-blur-md px-3 py-2.5 border border-purple-800/50">
       <p className="text-[10px] text-purple-300 mb-1.5 font-medium uppercase tracking-wider">
-        Comparison
+        Karşılaştırma
       </p>
       <div
         className="h-2.5 w-36 rounded-full"
@@ -145,9 +145,9 @@ function DeltaLegend({ is3D }: { is3D?: boolean }) {
         <span>+30%</span>
       </div>
       <div className="flex justify-between mt-0.5 text-[9px]">
-        <span className="text-blue-400">Less busy</span>
-        <span className="text-gray-400">Same</span>
-        <span className="text-red-400">More busy</span>
+        <span className="text-blue-400">Daha boş</span>
+        <span className="text-gray-400">Aynı</span>
+        <span className="text-red-400">Daha dolu</span>
       </div>
       {is3D && (
         <div className="mt-2 pt-2 border-t border-gray-800/40">
@@ -155,7 +155,7 @@ function DeltaLegend({ is3D }: { is3D?: boolean }) {
             <div className="w-3 h-3 rounded-sm bg-gray-500" style={{
               clipPath: "polygon(20% 100%, 80% 100%, 65% 30%, 35% 30%)",
             }} />
-            <span className="text-[9px] text-gray-400">Height = magnitude of change</span>
+            <span className="text-[9px] text-gray-400">Yükseklik = değişim miktarı</span>
           </div>
         </div>
       )}
@@ -166,9 +166,9 @@ function DeltaLegend({ is3D }: { is3D?: boolean }) {
 import { legendGradientCss, modeAccentCss } from "../lib/isochroneColors";
 
 const ISO_MODE_LABELS: Record<TransportMode, string> = {
-  driving: "Driving",
-  cycling: "Cycling",
-  walking: "Walking",
+  driving: "Araç",
+  cycling: "Bisiklet",
+  walking: "Yürüyüş",
 };
 
 function IsochroneLegend({ mode }: { mode: TransportMode }) {
@@ -196,9 +196,9 @@ function IsochroneLegend({ mode }: { mode: TransportMode }) {
         <span>20</span>
       </div>
       <div className="flex justify-between mt-0.5 text-[9px]">
-        <span style={{ color: accent }}>Close</span>
-        <span className="text-gray-500">Reachable</span>
-        <span className="text-gray-600">Far</span>
+        <span style={{ color: accent }}>Yakın</span>
+        <span className="text-gray-500">Ulaşılabilir</span>
+        <span className="text-gray-600">Uzak</span>
       </div>
 
       <div className="mt-2 pt-2 border-t border-gray-800/40">
@@ -207,10 +207,10 @@ function IsochroneLegend({ mode }: { mode: TransportMode }) {
             className="w-2 h-2 rounded-full"
             style={{ backgroundColor: accent }}
           />
-          <span className="text-[9px] text-gray-400">Origin point</span>
+          <span className="text-[9px] text-gray-400">Başlangıç noktası</span>
         </div>
         <p className="text-[9px] text-gray-500 mt-1">
-          Rings shrink during rush hours
+          Yoğun saatlerde halkalar daralır
         </p>
       </div>
     </div>
@@ -226,7 +226,7 @@ function BikeLegend() {
   return (
     <div className="absolute bottom-28 right-4 z-20 rounded-xl bg-gray-950/80 backdrop-blur-md px-3 py-2.5 border border-teal-800/50">
       <p className="text-[10px] text-teal-300 mb-1.5 font-medium uppercase tracking-wider">
-        Bike Demand
+        Bisiklet Talebi
       </p>
       <div
         className="h-2.5 w-36 rounded-full"
@@ -241,13 +241,13 @@ function BikeLegend() {
         <span>100%</span>
       </div>
       <div className="flex justify-between mt-0.5 text-[9px]">
-        <span className="text-teal-300">Quiet</span>
-        <span className="text-teal-400">Moderate</span>
-        <span className="text-cyan-500">Peak</span>
+        <span className="text-teal-300">Sakin</span>
+        <span className="text-teal-400">Orta</span>
+        <span className="text-cyan-500">Pik</span>
       </div>
       <div className="mt-2 pt-2 border-t border-gray-800/40">
         <p className="text-[9px] text-gray-500">
-          High demand = popular pickup = fewer bikes available
+          Yüksek talep = popüler başlangıç = daha az bisiklet
         </p>
       </div>
     </div>
@@ -263,7 +263,7 @@ function CorrelationLegend() {
   return (
     <div className="absolute bottom-28 right-4 z-20 rounded-xl bg-gray-950/80 backdrop-blur-md px-3 py-2.5 border border-green-800/50">
       <p className="text-[10px] text-green-300 mb-1.5 font-medium uppercase tracking-wider">
-        Bike Alternative
+        Bisiklet Alternatifi
       </p>
       <div
         className="h-2.5 w-36 rounded-full"
@@ -272,16 +272,16 @@ function CorrelationLegend() {
         }}
       />
       <div className="flex justify-between mt-1 text-[10px] text-gray-500">
-        <span>Low</span>
-        <span>High</span>
+        <span>Düşük</span>
+        <span>Yüksek</span>
       </div>
       <div className="flex justify-between mt-0.5 text-[9px]">
-        <span className="text-gray-400">No advantage</span>
-        <span className="text-green-400">Bike instead!</span>
+        <span className="text-gray-400">Avantaj yok</span>
+        <span className="text-green-400">Bisiklete bin!</span>
       </div>
       <div className="mt-2 pt-2 border-t border-gray-800/40">
         <p className="text-[9px] text-gray-500">
-          Green = parking hard + bikes available
+          Yeşil = park zor + bisiklet müsait
         </p>
       </div>
     </div>

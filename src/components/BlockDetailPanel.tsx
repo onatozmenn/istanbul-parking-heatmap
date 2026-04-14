@@ -51,7 +51,7 @@ export function BlockDetailPanel({ block, timeSlot, onClose, comparing, referenc
       <div className="px-4 py-3 border-b border-gray-800/30">
         <div className="flex items-center gap-2 mb-2">
           <Gauge size={14} className="text-gray-400" />
-          <span className="text-xs text-gray-400">Current Selection</span>
+          <span className="text-xs text-gray-400">Mevcut Seçim</span>
         </div>
         <div className="flex items-baseline gap-2">
           <span
@@ -68,12 +68,12 @@ export function BlockDetailPanel({ block, timeSlot, onClose, comparing, referenc
           </span>
         </div>
         <p className="text-xs text-gray-500 mt-1">
-          {block.meters} meter{block.meters !== 1 ? "s" : ""} on this block
-          {!enforced && " - meters off"}
-          {block.supply != null && ` / ${block.supply} total spaces`}
+          {block.meters} sayaç{block.meters !== 1 ? "" : ""} bu blokta
+          {!enforced && " - sayaçlar kapalı"}
+          {block.supply != null && ` / ${block.supply} toplam yer`}
         </p>
         {source === "pressure" && (
-          <p className="text-[10px] text-gray-600 mt-0.5">Based on parking complaints</p>
+          <p className="text-[10px] text-gray-600 mt-0.5">Park şikayetlerine dayalı</p>
         )}
 
         {/* Delta info in comparison mode */}
@@ -85,11 +85,11 @@ export function BlockDetailPanel({ block, timeSlot, onClose, comparing, referenc
           return (
             <div className="mt-2 pt-2 border-t border-purple-800/30">
               <div className="flex items-center justify-between text-xs">
-                <span className="text-gray-400">Reference:</span>
+                <span className="text-gray-400">Referans:</span>
                 <span className="font-medium">{formatOccupancy(refOcc)}</span>
               </div>
               <div className="flex items-center justify-between text-xs mt-1">
-                <span className="text-gray-400">Delta:</span>
+                <span className="text-gray-400">Fark:</span>
                 <span
                   className="font-bold text-sm"
                   style={{ color: deltaToCss(delta, hasData) }}
@@ -107,7 +107,7 @@ export function BlockDetailPanel({ block, timeSlot, onClose, comparing, referenc
         <div className="flex items-center gap-2 mb-2">
           <Clock size={14} className="text-gray-400" />
           <span className="text-xs text-gray-400">
-            Weekly Profile {loading && "(loading...)"}
+            Haftalık Profil {loading && "(yükleniyor...)"}
           </span>
         </div>
 
@@ -187,7 +187,7 @@ function BestWorstTimes({ slots }: { slots: number[] }) {
   }
 
   if (businessSlots.length === 0) {
-    return <p className="text-xs text-gray-500">No data for business hours</p>;
+    return <p className="text-xs text-gray-500">İş saatleri için veri yok</p>;
   }
 
   businessSlots.sort((a, b) => a.occ - b.occ);
@@ -198,7 +198,7 @@ function BestWorstTimes({ slots }: { slots: number[] }) {
   return (
     <div className="space-y-2">
       <div>
-        <p className="text-[10px] text-green-400 font-medium mb-1">Easiest Parking</p>
+        <p className="text-[10px] text-green-400 font-medium mb-1">En Kolay Park</p>
         {best.map((s, i) => (
           <p key={i} className="text-xs text-gray-300">
             {dayName(s.dow)} {formatHour(s.hour)} - {formatOccupancy(s.occ)}
@@ -206,7 +206,7 @@ function BestWorstTimes({ slots }: { slots: number[] }) {
         ))}
       </div>
       <div>
-        <p className="text-[10px] text-red-400 font-medium mb-1">Hardest Parking</p>
+        <p className="text-[10px] text-red-400 font-medium mb-1">En Zor Park</p>
         {worst.map((s, i) => (
           <p key={i} className="text-xs text-gray-300">
             {dayName(s.dow)} {formatHour(s.hour)} - {formatOccupancy(s.occ)}

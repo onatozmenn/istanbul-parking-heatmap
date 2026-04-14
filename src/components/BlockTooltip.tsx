@@ -13,8 +13,8 @@ export function getBlockTooltipContent(block: BlockData, timeSlot: TimeSlot) {
   const source = getDataSource(block, timeSlot);
 
   const sourceLabel =
-    source === "meter" ? "(Meter data)" :
-    source === "pressure" ? "(Based on parking complaints)" :
+    source === "meter" ? "(Sayaç verisi)" :
+    source === "pressure" ? "(Park şikayetlerine dayalı)" :
     enforced ? "" : "";
 
   const labelColor = !enforced
@@ -22,7 +22,7 @@ export function getBlockTooltipContent(block: BlockData, timeSlot: TimeSlot) {
     : (occ <= 0 ? '#6b7280' : occ <= 0.59 ? '#22c55e' : occ <= 0.79 ? '#eab308' : '#ef4444');
 
   const statusLine = !enforced && occ <= 0
-    ? '<div style="font-size: 11px; color: #3b82f6; margin-bottom: 2px">Meters Off</div>'
+    ? '<div style="font-size: 11px; color: #3b82f6; margin-bottom: 2px">Sayaçlar Kapalı</div>'
     : "";
 
   return {
@@ -37,7 +37,7 @@ export function getBlockTooltipContent(block: BlockData, timeSlot: TimeSlot) {
         </div>
         <div style="font-size: 11px; color: ${labelColor}">${label}</div>
         ${sourceLabel ? `<div style="font-size: 9px; color: #64748b; margin-top: 1px">${sourceLabel}</div>` : ""}
-        <div style="font-size: 10px; color: #64748b; margin-top: 2px">${block.meters} meter${block.meters !== 1 ? 's' : ''}</div>
+        <div style="font-size: 10px; color: #64748b; margin-top: 2px">${block.meters} sayaç</div>
       </div>
     `,
   };
@@ -63,15 +63,15 @@ export function getDeltaTooltipContent(
         <div style="font-weight: 600; margin-bottom: 3px">${block.id}</div>
         ${block.hood ? `<div style="font-size: 11px; color: #94a3b8; margin-bottom: 4px">${block.hood}</div>` : ""}
         <div style="display: flex; justify-content: space-between; margin-bottom: 2px">
-          <span style="font-size: 11px; color: #94a3b8">Now:</span>
+          <span style="font-size: 11px; color: #94a3b8">Şimdi:</span>
           <span style="font-size: 12px; font-weight: 500">${formatOccupancy(curOcc)}</span>
         </div>
         <div style="display: flex; justify-content: space-between; margin-bottom: 2px">
-          <span style="font-size: 11px; color: #94a3b8">Reference:</span>
+          <span style="font-size: 11px; color: #94a3b8">Referans:</span>
           <span style="font-size: 12px; font-weight: 500">${formatOccupancy(refOcc)}</span>
         </div>
         <div style="display: flex; justify-content: space-between; padding-top: 3px; border-top: 1px solid rgba(255,255,255,0.1)">
-          <span style="font-size: 11px; color: #94a3b8">Delta:</span>
+          <span style="font-size: 11px; color: #94a3b8">Fark:</span>
           <span style="font-size: 14px; font-weight: 700; color: ${deltaColor}">${hasData ? formatDelta(delta) : 'N/A'}</span>
         </div>
       </div>

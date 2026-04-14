@@ -1,7 +1,7 @@
-/** Photon geocoder wrapper with SF bounding box */
+/** Photon geocoder wrapper with İstanbul bounding box */
 
 const PHOTON_URL = "https://photon.komoot.io/api";
-const SF_BBOX = { west: -122.52, south: 37.7, east: -122.35, north: 37.82 };
+const IST_BBOX = { west: 28.5, south: 40.8, east: 29.5, north: 41.3 };
 
 export interface GeoResult {
   name: string;
@@ -31,11 +31,11 @@ export async function geocode(query: string): Promise<GeoResult[]> {
 
   const params = new URLSearchParams({
     q: query,
-    bbox: `${SF_BBOX.west},${SF_BBOX.south},${SF_BBOX.east},${SF_BBOX.north}`,
+    bbox: `${IST_BBOX.west},${IST_BBOX.south},${IST_BBOX.east},${IST_BBOX.north}`,
     limit: "5",
-    lang: "en",
-    lat: "37.775",
-    lon: "-122.42",
+    lang: "tr",
+    lat: "41.0082",
+    lon: "28.9784",
   });
 
   const res = await fetch(`${PHOTON_URL}?${params}`);
@@ -45,8 +45,8 @@ export async function geocode(query: string): Promise<GeoResult[]> {
   const results: GeoResult[] = (data.features ?? [])
     .filter((f) => {
       const [lng, lat] = f.geometry.coordinates;
-      return lat >= SF_BBOX.south && lat <= SF_BBOX.north &&
-             lng >= SF_BBOX.west && lng <= SF_BBOX.east;
+      return lat >= IST_BBOX.south && lat <= IST_BBOX.north &&
+             lng >= IST_BBOX.west && lng <= IST_BBOX.east;
     })
     .map((f) => ({
       name: buildDisplayName(f.properties),

@@ -34,7 +34,7 @@ export function SearchBar({
           type="text"
           value={query}
           onChange={(e) => onQueryChange(e.target.value)}
-          placeholder="Search SF address..."
+          placeholder="İstanbul adres ara..."
           className="w-full pl-9 pr-8 py-2 rounded-xl bg-gray-950/85 backdrop-blur-md border border-gray-800/50 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-blue-500/50 transition-colors"
         />
         {(query || hasSelection) && (
@@ -70,7 +70,7 @@ export function SearchBar({
       {/* Radius selector (shown when a result is selected) */}
       {hasSelection && (
         <div className="mt-1.5 flex items-center justify-center gap-1">
-          <span className="text-[10px] text-gray-400 mr-1">Radius:</span>
+          <span className="text-[10px] text-gray-400 mr-1">Yarıçap:</span>
           {RADIUS_OPTIONS.map((r) => (
             <button
               key={r}

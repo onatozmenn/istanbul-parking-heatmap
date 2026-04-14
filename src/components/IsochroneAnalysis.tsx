@@ -95,10 +95,10 @@ export function IsochroneAnalysis({
     <div className="mt-2 pt-2 border-t border-gray-800/50">
       <div className="flex items-baseline justify-between mb-1.5">
         <span className="text-[9px] text-gray-500 uppercase tracking-wider">
-          Parking in reach
+          Ulaşılabilir park
         </span>
         <span className="text-[10px] text-gray-400 tabular-nums">
-          {total} blocks
+          {total} blok
         </span>
       </div>
 
@@ -137,17 +137,17 @@ export function IsochroneAnalysis({
           <div className="flex justify-between mt-1 text-[9px] text-gray-500">
             {tiers.available > 0 && (
               <span style={{ color: "rgb(34, 197, 94)" }}>
-                {Math.round((tiers.available / withData) * 100)}% avail
+                {Math.round((tiers.available / withData) * 100)}% müsait
               </span>
             )}
             {tiers.moderate > 0 && (
               <span style={{ color: "rgb(234, 179, 8)" }}>
-                {Math.round((tiers.moderate / withData) * 100)}% moderate
+                {Math.round((tiers.moderate / withData) * 100)}% orta
               </span>
             )}
             {tiers.difficult > 0 && (
               <span style={{ color: "rgb(239, 68, 68)" }}>
-                {Math.round((tiers.difficult / withData) * 100)}% difficult
+                {Math.round((tiers.difficult / withData) * 100)}% zor
               </span>
             )}
           </div>
@@ -158,7 +158,7 @@ export function IsochroneAnalysis({
       {nearby.length > 0 && (
         <div>
           <span className="text-[9px] text-gray-600 uppercase tracking-wider">
-            Best within 10 min
+            10 dk içinde en iyi
           </span>
           <div className="mt-1 space-y-0.5">
             {nearby.map((r) => (

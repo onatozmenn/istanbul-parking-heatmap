@@ -3,9 +3,9 @@ import { FlyToInterpolator } from "deck.gl";
 import type { MapViewState } from "deck.gl";
 
 const DEFAULT_VIEW: MapViewState = {
-  longitude: -122.42,
-  latitude: 37.775,
-  zoom: 13,
+  longitude: 28.9784,
+  latitude: 41.0082,
+  zoom: 12,
   pitch: 0,
   bearing: 0,
 };

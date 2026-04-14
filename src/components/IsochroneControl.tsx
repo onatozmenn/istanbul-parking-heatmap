@@ -3,9 +3,9 @@ import type { TransportMode, IsochroneOrigin } from "../types";
 import { modeAccentCss } from "../lib/isochroneColors";
 
 const MODES: { key: TransportMode; icon: typeof Car; label: string }[] = [
-  { key: "driving", icon: Car, label: "Drive" },
-  { key: "cycling", icon: Bike, label: "Bike" },
-  { key: "walking", icon: Footprints, label: "Walk" },
+  { key: "driving", icon: Car, label: "Araç" },
+  { key: "cycling", icon: Bike, label: "Bisiklet" },
+  { key: "walking", icon: Footprints, label: "Yürüyüş" },
 ];
 
 interface IsochroneControlProps {
@@ -51,7 +51,7 @@ export function IsochroneControl({
         } backdrop-blur-md`}
       >
         <MapPin size={14} />
-        Isochrone
+        İzokron
       </button>
 
       {/* Expanded panel */}
@@ -88,7 +88,7 @@ export function IsochroneControl({
           <div className="mb-3">
             <div className="flex justify-between items-baseline mb-1.5">
               <span className="text-[9px] text-gray-500 uppercase tracking-wider">
-                Travel time
+                Yolculuk süresi
               </span>
               <span
                 className="text-xs font-medium tabular-nums"
@@ -153,17 +153,17 @@ export function IsochroneControl({
           {/* Status */}
           {loading && (
             <p className="text-[10px] text-gray-500 animate-pulse">
-              Loading isochrone data...
+              İzokron verisi yükleniyor...
             </p>
           )}
 
           {!origin && !loading && (
             <div className="text-center py-1">
               <p className="text-[10px] text-gray-500">
-                Click map to set origin
+                Başlangıç için haritaya tıklayın
               </p>
               <p className="text-[9px] text-gray-600 mt-0.5">
-                Rings show reachable area
+                Halkalar ulaşılabilir alanı gösterir
               </p>
             </div>
           )}

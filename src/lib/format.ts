@@ -1,6 +1,6 @@
-const DAY_NAMES = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"] as const;
+const DAY_NAMES = ["Pzt", "Sal", "Çar", "Per", "Cum", "Cmt", "Paz"] as const;
 const DAY_NAMES_FULL = [
-  "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday",
+  "Pazartesi", "Salı", "Çarşamba", "Perşembe", "Cuma", "Cumartesi", "Pazar",
 ] as const;
 
 /** Short day name from ISO dow (0=Mon..6=Sun) */
@@ -13,21 +13,18 @@ export function dayNameFull(dow: number): string {
   return DAY_NAMES_FULL[dow] ?? "?";
 }
 
-/** Format hour as "9 AM", "12 PM", etc. */
+/** Format hour as "09:00", "14:00", etc. */
 export function formatHour(hour: number): string {
-  if (hour === 0) return "12 AM";
-  if (hour < 12) return `${hour} AM`;
-  if (hour === 12) return "12 PM";
-  return `${hour - 12} PM`;
+  return `${hour.toString().padStart(2, "0")}:00`;
 }
 
 /** Format occupancy as percentage string */
 export function formatOccupancy(occupancy: number, enforced = true): string {
-  if (occupancy <= 0) return enforced ? "N/A" : "Free";
+  if (occupancy <= 0) return enforced ? "N/A" : "Ücretsiz";
   return `${Math.round(occupancy * 100)}%`;
 }
 
-/** Format time slot as "Wednesday 2:00 PM" */
+/** Format time slot as "Çarşamba 14:00" */
 export function formatTimeSlot(dow: number, hour: number): string {
   return `${dayNameFull(dow)} ${formatHour(hour)}`;
 }

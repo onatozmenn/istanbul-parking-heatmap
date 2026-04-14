@@ -1,9 +1,9 @@
 /**
- * Occupancy-to-color mapping matching SFMTA thresholds:
- *   0-59%  = Green (Available)
- *  60-79%  = Yellow (Moderate)
- *  80-100% = Red (Difficult)
- *  No data = Gray
+ * Doluluk-renk eşleştirmesi:
+ *   0-59%  = Yeşil (Müsait)
+ *  60-79%  = Sarı (Orta)
+ *  80-100% = Kırmızı (Zor)
+ *  Veri yok = Gri
  */
 
 const GREEN: [number, number, number] = [34, 197, 94]; // #22c55e
@@ -69,13 +69,13 @@ export function occupancyToCss(occupancy: number, enforced = true): string {
 /** Occupancy label for accessibility and tooltips */
 export function occupancyLabel(occupancy: number, enforced = true): string {
   if (!enforced) {
-    if (occupancy <= 0) return "Free Parking";
-    if (occupancy <= 0.59) return "Low pressure";
-    if (occupancy <= 0.79) return "Moderate pressure";
-    return "High pressure";
+    if (occupancy <= 0) return "Ücretsiz Park";
+    if (occupancy <= 0.59) return "Düşük yoğunluk";
+    if (occupancy <= 0.79) return "Orta yoğunluk";
+    return "Yüksek yoğunluk";
   }
-  if (occupancy <= 0) return "No data";
-  if (occupancy <= 0.59) return "Available";
-  if (occupancy <= 0.79) return "Moderate";
-  return "Difficult";
+  if (occupancy <= 0) return "Veri yok";
+  if (occupancy <= 0.59) return "Müsait";
+  if (occupancy <= 0.79) return "Orta";
+  return "Zor";
 }

@@ -26,10 +26,10 @@ export function ComparisonControl({
             ? "bg-purple-500/80 text-white"
             : "bg-gray-800/60 text-gray-400 hover:bg-gray-700/60 border border-gray-700/50"
         }`}
-        title={comparing ? "Exit comparison (Esc)" : `Pin ${formatTimeSlot(currentSlot.dow, currentSlot.hour)} as reference (C)`}
+        title={comparing ? "Karşılaştırmadan çık (Esc)" : `${formatTimeSlot(currentSlot.dow, currentSlot.hour)} referans olarak sabitle (C)`}
       >
         <Pin size={12} />
-        {comparing ? "Comparing" : "Compare"}
+        {comparing ? "Karşılaştırılıyor" : "Karşılaştır"}
       </button>
 
       {comparing && referenceSlot && (
@@ -40,7 +40,7 @@ export function ComparisonControl({
           <button
             onClick={onExit}
             className="p-0.5 rounded hover:bg-gray-800 transition-colors"
-            title="Exit comparison"
+            title="Karşılaştırmadan çık"
           >
             <X size={12} className="text-gray-400" />
           </button>

@@ -55,11 +55,11 @@ export function demandToCss(demand: number): string {
 
 /** Demand label for tooltips */
 export function demandLabel(demand: number): string {
-  if (demand <= 0) return "No data";
-  if (demand <= 0.3) return "Quiet";
-  if (demand <= 0.6) return "Moderate";
-  if (demand <= 0.85) return "Busy";
-  return "Peak";
+  if (demand <= 0) return "Veri yok";
+  if (demand <= 0.3) return "Sakin";
+  if (demand <= 0.6) return "Orta";
+  if (demand <= 0.85) return "Yoğun";
+  return "Pik";
 }
 
 /**

@@ -15,7 +15,7 @@ interface WeekHeatmapProps {
 export function WeekHeatmap({ cityAverages, cityEnforcedFraction, timeSlot, onCellClick, viewMode = "parking", bikeCityAverages }: WeekHeatmapProps) {
   const isBikeMode = viewMode === "bike" || viewMode === "correlation";
   const averages = isBikeMode && bikeCityAverages ? bikeCityAverages : cityAverages;
-  const label = isBikeMode ? "Bike Demand Pattern" : "Weekly Pattern";
+  const label = isBikeMode ? "Bisiklet Talep Örüntüsü" : "Haftalık Örüntü";
   const borderColor = isBikeMode ? "border-teal-800/50" : "border-gray-800/50";
 
   return (

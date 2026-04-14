@@ -19,13 +19,13 @@ export function getStationTooltipContent(station: StationData, timeSlot: TimeSlo
     html: `
       <div style="min-width: 160px">
         <div style="font-weight: 600; margin-bottom: 3px">${station.name}</div>
-        <div style="font-size: 11px; color: #94a3b8; margin-bottom: 4px">${station.id} - ${station.capacity} docks</div>
+        <div style="font-size: 11px; color: #94a3b8; margin-bottom: 4px">${station.id} - ${station.capacity} yuva</div>
         <div style="display: flex; justify-content: space-between; align-items: center">
           <span style="font-size: 12px">${dayName(timeSlot.dow)} ${formatHour(timeSlot.hour)}</span>
           <span style="font-weight: 600; font-size: 14px">${demand > 0 ? depPct + "%" : "N/A"}</span>
         </div>
-        <div style="font-size: 11px; color: ${labelColor}">${label} departures</div>
-        <div style="font-size: 10px; color: #64748b; margin-top: 2px">Arrivals: ${arrivals > 0 ? arrPct + "%" : "N/A"}</div>
+        <div style="font-size: 11px; color: ${labelColor}">${label} kalkış</div>
+        <div style="font-size: 10px; color: #64748b; margin-top: 2px">Varış: ${arrivals > 0 ? arrPct + "%" : "N/A"}</div>
       </div>
     `,
   };
@@ -54,7 +54,7 @@ export function getCorrelationTooltipContent(
   const bikePct = Math.round(bikeDemand * 100);
   const score = parkingOcc * (1 - bikeDemand);
   const advice =
-    score >= 0.4 ? "Consider biking!" : score >= 0.2 ? "Bikes may help" : "No strong advantage";
+    score >= 0.4 ? "Bisiklete binin!" : score >= 0.2 ? "Bisiklet yardımcı olabilir" : "Belirgin avantaj yok";
 
   const adviceColor = score >= 0.4 ? "#22c55e" : score >= 0.2 ? "#94a3b8" : "#6b7280";
 
@@ -64,14 +64,14 @@ export function getCorrelationTooltipContent(
         <div style="font-weight: 600; margin-bottom: 3px">${block.id}</div>
         ${block.hood ? `<div style="font-size: 11px; color: #94a3b8; margin-bottom: 4px">${block.hood}</div>` : ""}
         <div style="display: flex; justify-content: space-between; margin-bottom: 2px">
-          <span style="font-size: 11px; color: #94a3b8">Parking:</span>
+          <span style="font-size: 11px; color: #94a3b8">Park:</span>
           <span style="font-size: 12px; font-weight: 500">${parkingOcc > 0 ? parkingPct + "%" : "N/A"}</span>
         </div>
         <div style="display: flex; justify-content: space-between; margin-bottom: 2px">
-          <span style="font-size: 11px; color: #94a3b8">Bike demand:</span>
+          <span style="font-size: 11px; color: #94a3b8">Bisiklet talebi:</span>
           <span style="font-size: 12px; font-weight: 500">${stationCount > 0 ? bikePct + "%" : "N/A"}</span>
         </div>
-        <div style="font-size: 10px; color: #64748b; margin-bottom: 3px">${stationCount} station${stationCount !== 1 ? "s" : ""} within 400m</div>
+        <div style="font-size: 10px; color: #64748b; margin-bottom: 3px">${stationCount} istasyon (400m içinde)</div>
         <div style="padding-top: 3px; border-top: 1px solid rgba(255,255,255,0.1); font-size: 12px; font-weight: 600; color: ${adviceColor}">${advice}</div>
       </div>
     `,

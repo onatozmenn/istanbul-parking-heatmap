@@ -8,7 +8,7 @@ interface HeaderProps {
 
 export function Header({ generated, dateRange, blockCount }: HeaderProps) {
   const freshness = generated
-    ? new Date(generated).toLocaleDateString("en-US", {
+    ? new Date(generated).toLocaleDateString("tr-TR", {
         month: "short",
         day: "numeric",
         year: "numeric",
@@ -21,10 +21,10 @@ export function Header({ generated, dateRange, blockCount }: HeaderProps) {
         <MapPin size={20} className="text-blue-400" />
         <div>
           <h1 className="text-lg font-semibold tracking-tight leading-tight">
-            SF Parking <span className="font-light text-gray-400">Heatmap</span>
+            İstanbul Park <span className="font-light text-gray-400">Isı Haritası</span>
           </h1>
           <p className="text-xs text-gray-500">
-            {blockCount > 0 && `${blockCount.toLocaleString()} blocks`}
+            {blockCount > 0 && `${blockCount.toLocaleString()} blok`}
             {dateRange && ` - ${dateRange.from} to ${dateRange.to}`}
           </p>
         </div>
@@ -32,7 +32,7 @@ export function Header({ generated, dateRange, blockCount }: HeaderProps) {
 
       {freshness && (
         <div className="pointer-events-auto rounded-lg bg-gray-950/80 backdrop-blur-md px-3 py-1.5 border border-gray-800/50 text-xs text-gray-400">
-          Updated {freshness}
+          Güncelleme {freshness}
         </div>
       )}
     </header>

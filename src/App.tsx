@@ -31,12 +31,12 @@ import { IsochroneAnalysis } from "./components/IsochroneAnalysis";
 
 /** Human-readable labels for speed profile indices */
 const PROFILE_LABELS: Record<number, string> = {
-  0: "AM Peak (7-10 AM)",
-  1: "Midday (10 AM-4 PM)",
-  2: "PM Peak (4-8 PM)",
-  3: "Night (8 PM-7 AM)",
-  4: "Weekend Day (8 AM-8 PM)",
-  5: "Weekend Night (8 PM-8 AM)",
+  0: "Sabah Pik (7-10)",
+  1: "Öğle (10-16)",
+  2: "Akşam Pik (16-20)",
+  3: "Gece (20-07)",
+  4: "Hafta Sonu Gündüz (8-20)",
+  5: "Hafta Sonu Gece (20-8)",
 };
 
 // Parse URL state once at module level (before first render)
@@ -268,10 +268,10 @@ function App() {
     return (
       <div className="h-screen w-screen flex items-center justify-center bg-gray-950">
         <div className="text-center">
-          <p className="text-red-400 text-lg mb-2">Failed to load parking data</p>
+          <p className="text-red-400 text-lg mb-2">Park verileri yüklenemedi</p>
           <p className="text-gray-500 text-sm">{error}</p>
           <p className="text-gray-600 text-xs mt-4">
-            Run <code className="bg-gray-800 px-1.5 py-0.5 rounded">python3 scripts/aggregate_parking.py</code> to generate data
+            Veri oluşturmak için <code className="bg-gray-800 px-1.5 py-0.5 rounded">python3 scripts/fetch_ispark_data.py</code> çalıştırın
           </p>
         </div>
       </div>
@@ -285,9 +285,9 @@ function App() {
         <div className="absolute inset-0 z-50 flex items-center justify-center bg-gray-950">
           <div className="text-center">
             <h1 className="text-2xl font-semibold mb-2">
-              SF Parking <span className="font-light text-gray-400">Heatmap</span>
+              İstanbul Park <span className="font-light text-gray-400">Isı Haritası</span>
             </h1>
-            <p className="text-gray-500 text-sm">Loading parking data...</p>
+            <p className="text-gray-500 text-sm">Park verileri yükleniyor...</p>
           </div>
         </div>
       )}
@@ -397,7 +397,7 @@ function App() {
       {/* Comparison note: zoom in for delta view when at heatmap level */}
       {comparison.comparing && viewState.zoom < 13 && (
         <div className="absolute top-16 left-1/2 -translate-x-1/2 z-20 px-3 py-1.5 rounded-lg bg-purple-500/20 border border-purple-500/30 text-[11px] text-purple-300">
-          Zoom in to see delta visualization
+          Fark görünümü için yakınlaştırın
         </div>
       )}
 
