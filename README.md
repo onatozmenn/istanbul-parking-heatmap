@@ -122,8 +122,9 @@ docker compose up -d           # İlk çalıştırmada Türkiye OSM verisini ind
 
 MIT — [LICENSE](LICENSE) dosyasına bakın.
 
-## Acknowledgments
+## Teşekkürler
 
-- [DataSF](https://datasf.org/opendata/) for publishing the meter transaction dataset
-- [deck.gl](https://deck.gl), [MapLibre](https://maplibre.org), and [CARTO basemaps](https://carto.com/basemaps/) for the open mapping stack
-- [Valhalla](https://github.com/valhalla/valhalla) for the routing engine
+- Bu proje [wolfiesch/sf-parking-heatmap](https://github.com/wolfiesch/sf-parking-heatmap) temel alınarak İstanbul için uyarlanmıştır. Orijinal San Francisco versiyonunu geliştiren **Wolfgang Schoenberger**'e teşekkürler.
+- [İBB Açık Veri Portalı](https://data.ibb.gov.tr) ve İSPARK API'si
+- [deck.gl](https://deck.gl), [MapLibre](https://maplibre.org) ve [CARTO basemaps](https://carto.com/basemaps/) açık haritalama altyapısı
+- [Valhalla](https://github.com/valhalla/valhalla) yönlendirme motoru
