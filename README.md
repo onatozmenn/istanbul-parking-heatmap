@@ -4,6 +4,10 @@
 
 İstanbul İSPARK otoparkları için zamansal doluluk ısı haritası. Herhangi bir haftanın gününü ve saatini seçin; harita şehirdeki her İSPARK otoparkının tahmini doluluk oranını göstersin — İBB Açık Veri Portalı'ndaki İSPARK API'sinden çekilen gerçek otopark verileri kullanılarak oluşturulmuştur.
 
+![İstanbul Park Isı Haritası](public/data/screenshot.png)
+
+![İstanbul Park Isı Haritası - Detay](public/data/screenshot2.png)
+
 ## Ne yapar
 
 - **Otopark başına 168 slotluk haftalık profil**: 7 gün × 24 saat doluluk oranı, İSPARK anlık verilerinden türetilir

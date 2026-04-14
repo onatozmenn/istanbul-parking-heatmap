@@ -26,10 +26,7 @@ interface UrlParams {
   ilat: number | null;
   ilng: number | null;
   imax: number | null;
-  // View mode (parking/bike/correlation)
-  vm: string | null;
-  // Selected station (bike mode)
-  station: string | null;
+
 }
 
 function parseHash(): Partial<UrlParams> {
@@ -61,8 +58,7 @@ function parseHash(): Partial<UrlParams> {
       case "ilat": params.ilat = parseFloat(val); break;
       case "ilng": params.ilng = parseFloat(val); break;
       case "imax": params.imax = parseInt(val); break;
-      case "vm": params.vm = val; break;
-      case "station": params.station = decodeURIComponent(val); break;
+
     }
   }
   return params;
@@ -95,8 +91,7 @@ function buildHash(params: UrlParams): string {
     if (params.ilng != null) parts.push(`ilng=${params.ilng.toFixed(5)}`);
     if (params.imax != null && params.imax !== 20) parts.push(`imax=${params.imax}`);
   }
-  if (params.vm && params.vm !== "p") parts.push(`vm=${params.vm}`);
-  if (params.station) parts.push(`station=${encodeURIComponent(params.station)}`);
+
   return "#" + parts.join("&");
 }
 
@@ -115,8 +110,7 @@ export interface UrlStateInitial {
   isoLat?: number | null;
   isoLng?: number | null;
   isoMaxMinutes?: number | null;
-  viewMode?: string | null;
-  stationId?: string | null;
+
 }
 
 /** Parse initial state from URL on mount */
@@ -165,11 +159,7 @@ export function getInitialUrlState(): UrlStateInitial {
     }
   }
 
-  if (p.vm) {
-    const vmMap: Record<string, string> = { p: "parking", b: "bike", c: "correlation" };
-    result.viewMode = vmMap[p.vm] ?? "parking";
-  }
-  if (p.station) result.stationId = p.station;
+
 
   return result;
 }
@@ -190,8 +180,7 @@ interface UrlSyncState {
   isoLat?: number | null;
   isoLng?: number | null;
   isoMaxMinutes?: number | null;
-  viewMode?: string | null;
-  selectedStationId?: string | null;
+
 }
 
 /**
@@ -224,10 +213,8 @@ export function useUrlSync(state: UrlSyncState) {
       ilat: state.isoLat ?? null,
       ilng: state.isoLng ?? null,
       imax: state.isoMaxMinutes ?? null,
-      vm: state.viewMode
-        ? ({ parking: "p", bike: "b", correlation: "c" } as Record<string, string>)[state.viewMode] ?? null
-        : null,
-      station: state.selectedStationId ?? null,
+      vm: null,
+      station: null,
     });
 
     if (hash === prevHashRef.current) return;

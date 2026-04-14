@@ -4,7 +4,7 @@ import { DeckGL } from "@deck.gl/react";
 import type { Layer, PickingInfo, MapViewState } from "deck.gl";
 import "maplibre-gl/dist/maplibre-gl.css";
 
-import type { BlockData, StationData, TimeSlot, ViewMode } from "../types";
+import type { BlockData, TimeSlot } from "../types";
 import { createParkingHeatmapLayer } from "../layers/parkingHeatmapLayer";
 import { createParkingColumnLayer } from "../layers/parkingColumnLayer";
 import type { ColumnStyle } from "../layers/parkingColumnLayer";
@@ -12,11 +12,7 @@ import { createParkingDeltaColumnLayer } from "../layers/parkingDeltaColumnLayer
 import { createParkingPathLayers } from "../layers/parkingPathLayer";
 import { createParkingDeltaPathLayers } from "../layers/parkingDeltaPathLayer";
 import { createMeterDotsLayer } from "../layers/meterDotsLayer";
-import { createBikeHeatmapLayer } from "../layers/bikeHeatmapLayer";
-import { createBikeScatterLayer } from "../layers/bikeScatterLayer";
-import { createCorrelationLayer } from "../layers/correlationLayer";
 import { getBlockTooltipContent, getDeltaTooltipContent } from "./BlockTooltip";
-import { getStationTooltipContent, getCorrelationTooltipContent } from "./BikeTooltip";
 
 const MAP_STYLE = "https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json";
 
@@ -45,11 +41,6 @@ interface ParkingMapProps {
   comparing?: boolean;
   referenceSlot?: TimeSlot | null;
   columnStyle?: ColumnStyle;
-  viewMode?: ViewMode;
-  stations?: StationData[];
-  selectedStationId?: string | null;
-  onStationClick?: (station: StationData | null) => void;
-  nearestStations?: Map<string, StationData[]>;
 }
 
 export function ParkingMap({
@@ -64,11 +55,6 @@ export function ParkingMap({
   comparing,
   referenceSlot,
   columnStyle = "hexgrid",
-  viewMode = "parking",
-  stations = [],
-  selectedStationId,
-  onStationClick,
-  nearestStations,
 }: ParkingMapProps) {
   const zoom = viewState.zoom;
   const tier = getZoomTier(zoom);
@@ -89,33 +75,7 @@ export function ParkingMap({
   const dataLayers = useMemo(() => {
     const layers: Layer[] = [];
 
-    if (viewMode === "bike") {
-      // Bike mode: heatmap at low zoom, scatter at mid+
-      if (tier === "heatmap") {
-        layers.push(createBikeHeatmapLayer(stations, timeSlot));
-      } else {
-        layers.push(createBikeScatterLayer(stations, timeSlot, selectedStationId ?? null));
-      }
-      return layers;
-    }
-
-    if (viewMode === "correlation") {
-      // Correlation mode: parking layers as base + correlation overlay
-      if (tier === "scatter") {
-        layers.push(...createParkingPathLayers(withPath, withoutPath, timeSlot, selectedBlockId));
-      } else if (tier === "columns") {
-        layers.push(...createParkingColumnLayer(blocks, timeSlot, selectedBlockId, columnStyle));
-      } else {
-        layers.push(createParkingHeatmapLayer(blocks, timeSlot));
-      }
-      // Add correlation overlay if we have station data
-      if (nearestStations && nearestStations.size > 0) {
-        layers.push(createCorrelationLayer(blocks, timeSlot, nearestStations));
-      }
-      return layers;
-    }
-
-    // Parking mode (default)
+    // Parking mode
     if (comparing && referenceSlot) {
       if (tier === "scatter") {
         layers.push(...createParkingDeltaPathLayers(withPath, withoutPath, timeSlot, referenceSlot, selectedBlockId));
@@ -140,7 +100,7 @@ export function ParkingMap({
     }
 
     return layers;
-  }, [blocks, withPath, withoutPath, tier, timeSlot, selectedBlockId, comparing, referenceSlot, showMeterDots, columnStyle, viewMode, stations, selectedStationId, nearestStations]);
+  }, [blocks, withPath, withoutPath, tier, timeSlot, selectedBlockId, comparing, referenceSlot, showMeterDots, columnStyle]);
 
   const layers = useMemo(
     () => [...dataLayers, ...(extraLayers ?? [])],
@@ -150,41 +110,25 @@ export function ParkingMap({
   const handleClick = useCallback(
     (info: PickingInfo) => {
       if (info.object) {
-        if (viewMode === "bike" && onStationClick) {
-          onStationClick(info.object as StationData);
-        } else {
-          onBlockClick(info.object as BlockData);
-        }
+        onBlockClick(info.object as BlockData);
       } else if (onMapClick && info.coordinate) {
         onMapClick(info.coordinate as [number, number]);
       } else {
-        if (viewMode === "bike" && onStationClick) {
-          onStationClick(null);
-        } else {
-          onBlockClick(null);
-        }
+        onBlockClick(null);
       }
     },
-    [onBlockClick, onMapClick, onStationClick, viewMode],
+    [onBlockClick, onMapClick],
   );
 
   const getTooltip = useCallback(
     (info: PickingInfo) => {
       if (!info.object) return null;
-      if (viewMode === "bike") {
-        return getStationTooltipContent(info.object as StationData, timeSlot);
-      }
-      if (viewMode === "correlation") {
-        const block = info.object as BlockData;
-        const nearby = nearestStations?.get(block.id);
-        return getCorrelationTooltipContent(block, nearby, timeSlot);
-      }
       if (comparing && referenceSlot) {
         return getDeltaTooltipContent(info.object as BlockData, timeSlot, referenceSlot);
       }
       return getBlockTooltipContent(info.object as BlockData, timeSlot);
     },
-    [timeSlot, comparing, referenceSlot, viewMode, nearestStations],
+    [timeSlot, comparing, referenceSlot],
   );
 
   return (

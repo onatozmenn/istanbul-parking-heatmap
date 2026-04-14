@@ -33,7 +33,6 @@ export async function geocode(query: string): Promise<GeoResult[]> {
     q: query,
     bbox: `${IST_BBOX.west},${IST_BBOX.south},${IST_BBOX.east},${IST_BBOX.north}`,
     limit: "5",
-    lang: "tr",
     lat: "41.0082",
     lon: "28.9784",
   });

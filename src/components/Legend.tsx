@@ -1,8 +1,7 @@
 import { occupancyToCss } from "../lib/colors";
 import { deltaToCss } from "../lib/deltaColors";
-import { demandToCss, correlationToCss } from "../lib/bikeColors";
 import type { ColumnStyle } from "../layers/parkingColumnLayer";
-import type { TransportMode, ViewMode } from "../types";
+import type { TransportMode } from "../types";
 
 const STYLE_LABELS: Record<ColumnStyle, string> = {
   hexgrid: "Altıgen",
@@ -19,18 +18,9 @@ interface LegendProps {
   onColumnStyleChange?: (style: ColumnStyle) => void;
   isochroneActive?: boolean;
   isochroneMode?: TransportMode;
-  viewMode?: ViewMode;
 }
 
-export function Legend({ is3D, comparing, columnStyle, onColumnStyleChange, isochroneActive, isochroneMode, viewMode }: LegendProps) {
-  if (viewMode === "bike") {
-    return <BikeLegend />;
-  }
-
-  if (viewMode === "correlation") {
-    return <CorrelationLegend />;
-  }
-
+export function Legend({ is3D, comparing, columnStyle, onColumnStyleChange, isochroneActive, isochroneMode }: LegendProps) {
   if (comparing) {
     return <DeltaLegend is3D={is3D} />;
   }
@@ -211,77 +201,6 @@ function IsochroneLegend({ mode }: { mode: TransportMode }) {
         </div>
         <p className="text-[9px] text-gray-500 mt-1">
           Yoğun saatlerde halkalar daralır
-        </p>
-      </div>
-    </div>
-  );
-}
-
-function BikeLegend() {
-  const stops = Array.from({ length: 20 }, (_, i) => {
-    const demand = i / 19;
-    return `${demandToCss(demand)} ${Math.round((i / 19) * 100)}%`;
-  });
-
-  return (
-    <div className="absolute bottom-28 right-4 z-20 rounded-xl bg-gray-950/80 backdrop-blur-md px-3 py-2.5 border border-teal-800/50">
-      <p className="text-[10px] text-teal-300 mb-1.5 font-medium uppercase tracking-wider">
-        Bisiklet Talebi
-      </p>
-      <div
-        className="h-2.5 w-36 rounded-full"
-        style={{
-          background: `linear-gradient(to right, ${stops.join(", ")})`,
-        }}
-      />
-      <div className="flex justify-between mt-1 text-[10px] text-gray-500">
-        <span>0%</span>
-        <span>30%</span>
-        <span>60%</span>
-        <span>100%</span>
-      </div>
-      <div className="flex justify-between mt-0.5 text-[9px]">
-        <span className="text-teal-300">Sakin</span>
-        <span className="text-teal-400">Orta</span>
-        <span className="text-cyan-500">Pik</span>
-      </div>
-      <div className="mt-2 pt-2 border-t border-gray-800/40">
-        <p className="text-[9px] text-gray-500">
-          Yüksek talep = popüler başlangıç = daha az bisiklet
-        </p>
-      </div>
-    </div>
-  );
-}
-
-function CorrelationLegend() {
-  const stops = Array.from({ length: 10 }, (_, i) => {
-    const score = i / 9;
-    return `${correlationToCss(score)} ${Math.round((i / 9) * 100)}%`;
-  });
-
-  return (
-    <div className="absolute bottom-28 right-4 z-20 rounded-xl bg-gray-950/80 backdrop-blur-md px-3 py-2.5 border border-green-800/50">
-      <p className="text-[10px] text-green-300 mb-1.5 font-medium uppercase tracking-wider">
-        Bisiklet Alternatifi
-      </p>
-      <div
-        className="h-2.5 w-36 rounded-full"
-        style={{
-          background: `linear-gradient(to right, ${stops.join(", ")})`,
-        }}
-      />
-      <div className="flex justify-between mt-1 text-[10px] text-gray-500">
-        <span>Düşük</span>
-        <span>Yüksek</span>
-      </div>
-      <div className="flex justify-between mt-0.5 text-[9px]">
-        <span className="text-gray-400">Avantaj yok</span>
-        <span className="text-green-400">Bisiklete bin!</span>
-      </div>
-      <div className="mt-2 pt-2 border-t border-gray-800/40">
-        <p className="text-[9px] text-gray-500">
-          Yeşil = park zor + bisiklet müsait
         </p>
       </div>
     </div>

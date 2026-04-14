@@ -2,8 +2,7 @@ import { useState, useEffect } from "react";
 import type { BlockDetail } from "../types";
 
 /**
- * Block detail hook - uses the already-loaded block data instead of SODA API.
- * In the Ankara version, all data comes from pre-generated local JSON files.
+ * Block detail hook - uses the already-loaded block data from pre-generated local JSON files.
  */
 export function useBlockDetail(
   blockId: string | null,

@@ -1,26 +1,21 @@
 import { useState, useCallback, useEffect, useMemo } from "react";
-import type { BlockData, StationData, TransportMode, ViewMode } from "./types";
+import type { BlockData, TransportMode } from "./types";
 import type { ColumnStyle } from "./layers/parkingColumnLayer";
 import { useParkingData } from "./hooks/useParkingData";
 import { useTimeSlot } from "./hooks/useTimeSlot";
 import { useMapView } from "./hooks/useMapView";
-import { useViewMode } from "./hooks/useViewMode";
-import { useBikeData } from "./hooks/useBikeData";
 import { getInitialUrlState, useUrlSync } from "./hooks/useUrlState";
-import { buildNearestStationMap } from "./layers/correlationLayer";
 import { ParkingMap } from "./components/ParkingMap";
 import { TimeControl } from "./components/TimeControl";
 import { WeekHeatmap } from "./components/WeekHeatmap";
 import { Header } from "./components/Header";
 import { Legend } from "./components/Legend";
 import { BlockDetailPanel } from "./components/BlockDetailPanel";
-import { StationDetailPanel } from "./components/StationDetailPanel";
 import { NeighborhoodSummary } from "./components/NeighborhoodSummary";
 import { SearchBar } from "./components/SearchBar";
 import { SearchResults } from "./components/SearchResults";
 import { ComparisonControl } from "./components/ComparisonControl";
 import { IsochroneControl } from "./components/IsochroneControl";
-import { ViewModeToggle } from "./components/ViewModeToggle";
 import { useSearch } from "./hooks/useSearch";
 import { useComparison } from "./hooks/useComparison";
 import { useIsochrone } from "./hooks/useIsochrone";
@@ -48,12 +43,7 @@ function App() {
     useTimeSlot(urlInit.timeSlot);
   const { viewState, onViewStateChange, flyTo } = useMapView(urlInit.viewState);
   const [selectedBlock, setSelectedBlock] = useState<BlockData | null>(null);
-  const [selectedStation, setSelectedStation] = useState<StationData | null>(null);
   const [columnStyle, setColumnStyle] = useState<ColumnStyle>("columns");
-  const { mode: viewMode, setMode: setViewMode } = useViewMode(
-    (urlInit.viewMode as ViewMode) ?? "parking",
-  );
-  const bikeData = useBikeData();
   const search = useSearch(blocks, timeSlot);
   const comparison = useComparison(urlInit.comparing, urlInit.refDow, urlInit.refHour);
   const isochrone = useIsochrone({
@@ -63,28 +53,6 @@ function App() {
   });
   const isoData = useIsochroneData();
   const [snapDistance, setSnapDistance] = useState<number | null>(null);
-
-  // Load bike data when switching to bike or correlation mode
-  const loadBikeData = bikeData.load;
-  useEffect(() => {
-    if (viewMode === "bike" || viewMode === "correlation") {
-      loadBikeData();
-    }
-  }, [viewMode, loadBikeData]);
-
-  // Pre-compute nearest station map for correlation layer (once, when both datasets loaded)
-  const nearestStations = useMemo(() => {
-    if (blocks.length === 0 || bikeData.stations.length === 0) return new Map<string, StationData[]>();
-    return buildNearestStationMap(blocks, bikeData.stations);
-  }, [blocks, bikeData.stations]);
-
-  // Resolve station ID from URL once bike data loads
-  useEffect(() => {
-    if (urlInit.stationId && bikeData.stations.length > 0 && !selectedStation) {
-      const found = bikeData.stations.find((s) => s.id === urlInit.stationId);
-      if (found) setSelectedStation(found);
-    }
-  }, [bikeData.stations, selectedStation]);
 
   // Resolve block ID from URL once data loads
   const pendingBlockId = useMemo(() => urlInit.blockId ?? null, []);
@@ -132,8 +100,6 @@ function App() {
     isoLat: isochrone.origin?.lat,
     isoLng: isochrone.origin?.lng,
     isoMaxMinutes: isochrone.isActive ? isochrone.maxMinutes : undefined,
-    viewMode,
-    selectedStationId: selectedStation?.id ?? null,
   });
 
   // Handle browser back/forward
@@ -147,13 +113,10 @@ function App() {
       } else if (!s.blockId) {
         setSelectedBlock(null);
       }
-      if (s.viewMode) {
-        setViewMode(s.viewMode as ViewMode);
-      }
     }
     window.addEventListener("urlstatechange", handleUrlChange);
     return () => window.removeEventListener("urlstatechange", handleUrlChange);
-  }, [blocks, setSlot, setViewMode]);
+  }, [blocks, setSlot]);
 
   const handleBlockClick = useCallback(
     (block: BlockData | null) => {
@@ -163,29 +126,6 @@ function App() {
       }
     },
     [flyTo],
-  );
-
-  const handleStationClick = useCallback(
-    (station: StationData | null) => {
-      setSelectedStation(station);
-      if (station) {
-        flyTo(station.lng, station.lat);
-      }
-    },
-    [flyTo],
-  );
-
-  const handleViewModeChange = useCallback(
-    (mode: ViewMode) => {
-      setViewMode(mode);
-      // Clear selections when switching modes
-      if (mode === "parking") {
-        setSelectedStation(null);
-      } else {
-        setSelectedBlock(null);
-      }
-    },
-    [setViewMode],
   );
 
   // Handle isochrone map click: snap to nearest grid point
@@ -305,11 +245,6 @@ function App() {
         comparing={comparison.comparing}
         referenceSlot={comparison.referenceSlot}
         columnStyle={columnStyle}
-        viewMode={viewMode}
-        stations={bikeData.stations}
-        selectedStationId={selectedStation?.id ?? null}
-        onStationClick={handleStationClick}
-        nearestStations={nearestStations}
       />
 
       {/* Search */}
@@ -361,17 +296,12 @@ function App() {
 
       {/* UI overlays */}
       <Header
-        generated={viewMode === "bike" ? bikeData.generated : generated}
-        dateRange={viewMode === "bike" ? bikeData.dateRange : dateRange}
-        blockCount={viewMode === "bike" ? bikeData.stations.length : blocks.length}
+        generated={generated}
+        dateRange={dateRange}
+        blockCount={blocks.length}
       />
 
-      {/* View mode toggle */}
-      <div className="absolute top-16 left-4 z-20">
-        <ViewModeToggle mode={viewMode} onModeChange={handleViewModeChange} />
-      </div>
-
-      {!isochrone.isActive && viewMode === "parking" && (
+      {!isochrone.isActive && (
         <NeighborhoodSummary blocks={blocks} timeSlot={timeSlot} />
       )}
 
@@ -380,8 +310,6 @@ function App() {
         cityEnforcedFraction={cityEnforcedFraction}
         timeSlot={timeSlot}
         onCellClick={handleWeekCellClick}
-        viewMode={viewMode}
-        bikeCityAverages={bikeData.cityAverages}
       />
 
       <Legend
@@ -391,7 +319,6 @@ function App() {
         onColumnStyleChange={setColumnStyle}
         isochroneActive={isochrone.isActive && isochrone.origin !== null}
         isochroneMode={isochrone.mode}
-        viewMode={viewMode}
       />
 
       {/* Comparison note: zoom in for delta view when at heatmap level */}
@@ -419,18 +346,13 @@ function App() {
         />
       </TimeControl>
 
-      {/* Detail panels */}
+      {/* Detail panel */}
       <BlockDetailPanel
-        block={viewMode === "parking" || viewMode === "correlation" ? selectedBlock : null}
+        block={selectedBlock}
         timeSlot={timeSlot}
         onClose={() => setSelectedBlock(null)}
         comparing={comparison.comparing}
         referenceSlot={comparison.referenceSlot}
-      />
-      <StationDetailPanel
-        station={viewMode === "bike" ? selectedStation : null}
-        timeSlot={timeSlot}
-        onClose={() => setSelectedStation(null)}
       />
     </div>
   );

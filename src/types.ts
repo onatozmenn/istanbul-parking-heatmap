@@ -35,7 +35,7 @@ export interface TimeSlot {
   hour: number;
 }
 
-/** Block detail from on-demand SODA query */
+/** Block detail from pre-generated data */
 export interface BlockDetail {
   blockId: string;
   street: string;
@@ -90,28 +90,5 @@ export interface IsochroneState {
   mode: TransportMode;
   maxMinutes: number; // max travel time to show (2-20, controls how many bands visible)
 }
-
-/** Bay Wheels bike share station with typical-week demand profile */
-export interface StationData {
-  id: string;
-  name: string;
-  lat: number;
-  lng: number;
-  capacity: number;
-  /** 168-element departure demand array (0-1, peak=1.0), indexed as (dow * 24 + hour) */
-  slots: number[];
-  /** 168-element arrival demand array (0-1, peak=1.0) */
-  arrivals: number[];
-}
-
-/** Pre-computed bike share data loaded from bike_week.json */
-export interface BikeWeekData {
-  generated: string;
-  dateRange: { from: string; to: string };
-  stations: StationData[];
-}
-
-/** Active visualization mode */
-export type ViewMode = "parking" | "bike" | "correlation";
 
 export type { MapViewState };
