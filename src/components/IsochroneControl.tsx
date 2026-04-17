@@ -42,7 +42,7 @@ export function IsochroneControl({
   const accent = modeAccentCss(mode);
 
   return (
-    <div className="absolute top-14 right-4 z-30">
+    <div className="absolute top-2 sm:top-14 right-2 sm:right-4 z-30">
       {/* Toggle button */}
       <button
         onClick={onToggleActive}

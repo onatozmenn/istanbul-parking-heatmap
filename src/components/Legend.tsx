@@ -36,7 +36,7 @@ export function Legend({ is3D, comparing, columnStyle, onColumnStyleChange, isoc
   });
 
   return (
-    <div className="absolute bottom-28 right-4 z-20 rounded-[9px] glass-panel px-4 py-3 panel-fade-up">
+    <div className="absolute bottom-28 right-4 z-20 rounded-[9px] glass-panel px-4 py-3 panel-fade-up hide-on-mobile">
       <p className="text-[10px] text-white/30 mb-2 font-medium tracking-widest uppercase">
         Doluluk
       </p>
@@ -119,7 +119,7 @@ function DeltaLegend({ is3D }: { is3D?: boolean }) {
   });
 
   return (
-    <div className="absolute bottom-28 right-4 z-20 rounded-[9px] glass-panel px-4 py-3 panel-fade-up" style={{ borderColor: "rgba(168, 85, 247, 0.15)" }}>
+    <div className="absolute bottom-28 right-4 z-20 rounded-[9px] glass-panel px-4 py-3 panel-fade-up hide-on-mobile" style={{ borderColor: "rgba(168, 85, 247, 0.15)" }}>
       <p className="text-[10px] text-purple-300/80 mb-2 font-medium tracking-widest uppercase">
         Karşılaştırma
       </p>
@@ -167,7 +167,7 @@ function IsochroneLegend({ mode }: { mode: TransportMode }) {
   const gradient = legendGradientCss(mode);
 
   return (
-    <div className="absolute bottom-28 right-4 z-20 rounded-[9px] glass-panel px-4 py-3 panel-fade-up">
+    <div className="absolute bottom-28 right-4 z-20 rounded-[9px] glass-panel px-4 py-3 panel-fade-up hide-on-mobile">
       <p
         className="text-[10px] mb-2 font-medium tracking-widest uppercase"
         style={{ color: accent, opacity: 0.8 }}

@@ -26,7 +26,7 @@ export function SearchBar({
   onRadiusChange,
 }: SearchBarProps) {
   return (
-    <div className="absolute top-4 left-1/2 -translate-x-1/2 z-30 w-72 sm:w-80">
+    <div className="absolute top-14 sm:top-4 left-2 right-2 sm:left-1/2 sm:right-auto sm:-translate-x-1/2 z-30 sm:w-80">
       {/* Search input */}
       <div className="relative">
         <input
