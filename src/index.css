@@ -133,6 +133,19 @@ input[type="range"]::-moz-range-thumb {
   .hide-on-mobile {
     display: none !important;
   }
+
+  /* Legend: küçült ve alta yapıştır */
+  .legend-panel {
+    bottom: auto !important;
+    top: auto !important;
+    right: 8px !important;
+    left: 8px !important;
+    position: fixed !important;
+    bottom: 140px !important;
+    width: auto !important;
+    transform: scale(0.9);
+    transform-origin: bottom right;
+  }
 }
 
 /* Responsive: compact panels on medium screens */

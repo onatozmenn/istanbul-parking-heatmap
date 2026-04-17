@@ -1,4 +1,4 @@
-import { Search, X, Loader2 } from "lucide-react";
+import { X, Loader2 } from "lucide-react";
 import type { GeoResult } from "../lib/geocode";
 import { RADIUS_OPTIONS, type RadiusOption } from "../hooks/useSearch";
 
@@ -29,13 +29,12 @@ export function SearchBar({
     <div className="absolute top-4 left-1/2 -translate-x-1/2 z-30 w-72 sm:w-80">
       {/* Search input */}
       <div className="relative">
-        <Search size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-white/25" />
         <input
           type="text"
           value={query}
           onChange={(e) => onQueryChange(e.target.value)}
           placeholder="Konum veya adres ara..."
-          className="w-full pl-10 pr-9 py-2.5 rounded-[9px] glass-panel text-[13px] text-white placeholder-white/25 focus:outline-none focus:ring-1 focus:ring-white/10 transition-all"
+          className="w-full px-4 pr-10 py-2.5 rounded-[9px] bg-[rgba(15,15,25,0.75)] backdrop-blur-[20px] border border-white/[0.06] text-[13px] text-white placeholder-white/25 focus:outline-none focus:ring-1 focus:ring-white/10 transition-all"
           role="combobox"
           aria-label="Adres arama"
           aria-expanded={results.length > 0 && !hasSelection}
