@@ -26,7 +26,7 @@ export function SearchBar({
   onRadiusChange,
 }: SearchBarProps) {
   return (
-    <div className="absolute top-14 sm:top-4 left-2 right-2 sm:left-1/2 sm:right-auto sm:-translate-x-1/2 z-30 sm:w-80">
+    <div className="absolute top-12 sm:top-4 left-3 right-3 sm:left-1/2 sm:right-auto sm:-translate-x-1/2 z-30 sm:w-80">
       {/* Search input */}
       <div className="relative">
         <input
@@ -34,7 +34,7 @@ export function SearchBar({
           value={query}
           onChange={(e) => onQueryChange(e.target.value)}
           placeholder="Konum veya adres ara..."
-          className="w-full px-4 pr-10 py-2.5 rounded-[9px] bg-[rgba(15,15,25,0.75)] backdrop-blur-[20px] border border-white/[0.06] text-[13px] text-white placeholder-white/25 focus:outline-none focus:ring-1 focus:ring-white/10 transition-all"
+          className="w-full px-4 pr-10 py-2 sm:py-2.5 rounded-[9px] bg-[rgba(15,15,25,0.75)] backdrop-blur-[20px] border border-white/[0.06] text-[12px] sm:text-[13px] text-white placeholder-white/25 focus:outline-none focus:ring-1 focus:ring-white/10 transition-all"
           role="combobox"
           aria-label="Adres arama"
           aria-expanded={results.length > 0 && !hasSelection}

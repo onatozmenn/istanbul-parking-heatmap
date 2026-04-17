@@ -42,19 +42,19 @@ export function IsochroneControl({
   const accent = modeAccentCss(mode);
 
   return (
-    <div className="absolute top-2 sm:top-14 right-2 sm:right-4 z-30">
+    <div className="absolute top-2 sm:top-14 right-3 sm:right-4 z-30">
       {/* Toggle button */}
       <button
         onClick={onToggleActive}
         aria-pressed={isActive}
         aria-label="İzokron analizi aç/kapat"
-        className={`flex items-center gap-1.5 px-3 py-1.5 rounded-[9px] text-xs font-medium transition-all ${
+        className={`flex items-center gap-1 sm:gap-1.5 px-2 sm:px-3 py-1 sm:py-1.5 rounded-[9px] text-[10px] sm:text-xs font-medium transition-all ${
           isActive
             ? "bg-indigo-500/30 text-indigo-300 border border-indigo-500/50 shadow-lg shadow-indigo-500/10"
             : "bg-gray-900/80 text-gray-400 border border-gray-700/50 hover:text-gray-200 hover:border-gray-600"
         } backdrop-blur-md`}
       >
-        <MapPin size={14} />
+        <MapPin size={12} />
         İzokron
       </button>
 
