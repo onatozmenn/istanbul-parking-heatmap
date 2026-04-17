@@ -34,8 +34,8 @@ export function TimeControl({
   children,
 }: TimeControlProps) {
   return (
-    <div className="absolute bottom-0 left-0 right-0 z-20 pointer-events-none">
-      <div className="mx-auto max-w-2xl px-2 sm:px-4 pb-2 sm:pb-4 pointer-events-auto">
+    <div className="absolute bottom-0 left-0 right-0 z-20 pointer-events-none safe-bottom">
+      <div className="mx-auto max-w-2xl px-2 sm:px-4 pb-3 sm:pb-4 pointer-events-auto">
         <div className="rounded-[9px] glass-panel px-3 sm:px-5 py-3 sm:py-4 panel-fade-up">
           {/* Current time label + comparison control */}
           <div className="flex items-center justify-center gap-2 sm:gap-3 mb-2 sm:mb-3">
