@@ -38,7 +38,7 @@ export function TimeControl({
   const [showInsights, setShowInsights] = useState(false);
 
   return (
-    <div className="pointer-events-none absolute bottom-0 left-0 right-0 z-20 safe-bottom">
+    <div className="pointer-events-none absolute inset-x-0 bottom-[calc(env(safe-area-inset-bottom,0px)+0.75rem)] z-20 sm:bottom-6">
       <div className="pointer-events-auto px-3 pb-3 sm:hidden">
         <div className="mobile-sheet panel-fade-up rounded-[28px] glass-panel px-4 pb-4 pt-2.5">
           <div className="mx-auto h-1 w-11 rounded-full bg-white/[0.14]" />
@@ -106,7 +106,7 @@ export function TimeControl({
                 <button
                   key={opt.value}
                   onClick={() => onSpeedChange(opt.value)}
-                  aria-label={`H\u0131z ${opt.label}`}
+                  aria-label={`Hız ${opt.label}`}
                   aria-pressed={speed === opt.value}
                   className={`shrink-0 rounded-full px-2.5 py-1 text-[10px] font-medium transition-colors ${
                     speed === opt.value
@@ -125,7 +125,7 @@ export function TimeControl({
                 className="flex shrink-0 items-center gap-1 rounded-full border border-white/[0.08] bg-white/[0.03] px-3 py-1.5 text-[11px] font-medium text-white/[0.72]"
                 aria-expanded={showInsights}
               >
-                {"Haftal\u0131k"}
+                Haftalık
                 {showInsights ? <ChevronDown size={14} /> : <ChevronUp size={14} />}
               </button>
             )}
@@ -139,8 +139,8 @@ export function TimeControl({
         </div>
       </div>
 
-      <div className="mx-auto hidden max-w-2xl px-4 pb-4 sm:block">
-        <div className="panel-fade-up rounded-[9px] glass-panel px-5 py-4">
+      <div className="pointer-events-auto hidden px-5 sm:block">
+        <div className="panel-fade-up mx-auto w-full max-w-3xl rounded-[9px] glass-panel px-5 py-4 sm:translate-x-6" style={{ boxShadow: "none" }}>
           <div className="mb-3 flex items-center justify-center gap-3">
             <span className={`text-[13px] font-medium tracking-wide text-white/90 ${isPlaying ? "play-pulse" : ""}`}>
               {formatTimeSlot(timeSlot.dow, timeSlot.hour)}
@@ -148,7 +148,7 @@ export function TimeControl({
             {children}
           </div>
 
-          <div className="mb-4 flex justify-center gap-1" role="tablist" aria-label={"Haftan\u0131n g\u00FCnleri"}>
+          <div className="mb-4 flex justify-center gap-1" role="tablist" aria-label="Haftanın günleri">
             {Array.from({ length: 7 }, (_, i) => (
               <button
                 key={i}
@@ -196,12 +196,12 @@ export function TimeControl({
               </div>
             </div>
 
-            <div className="flex shrink-0 items-center gap-0.5 rounded-[9px] bg-white/[0.04] p-0.5" role="group" aria-label={"Oynatma h\u0131z\u0131"}>
+            <div className="flex shrink-0 items-center gap-0.5 rounded-[9px] bg-white/[0.04] p-0.5" role="group" aria-label="Oynatma hızı">
               {SPEED_OPTIONS.map((opt) => (
                 <button
                   key={opt.value}
                   onClick={() => onSpeedChange(opt.value)}
-                  aria-label={`H\u0131z ${opt.label}`}
+                  aria-label={`Hız ${opt.label}`}
                   aria-pressed={speed === opt.value}
                   className={`rounded-[9px] px-2 py-1 text-[10px] transition-all duration-200 ${
                     speed === opt.value

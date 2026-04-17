@@ -1,4 +1,4 @@
-import { Loader2, Search, X } from "lucide-react";
+import { Loader2, X } from "lucide-react";
 import type { GeoResult } from "../lib/geocode";
 import { RADIUS_OPTIONS, type RadiusOption } from "../hooks/useSearch";
 
@@ -26,20 +26,14 @@ export function SearchBar({
   onRadiusChange,
 }: SearchBarProps) {
   return (
-    <div className="pointer-events-auto w-full sm:mx-auto sm:max-w-[34rem]">
-      <div className="relative">
-        <Search
-          size={16}
-          className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-white/[0.28]"
-          aria-hidden="true"
-        />
-
+    <div className="absolute left-3 right-3 top-[calc(env(safe-area-inset-top,0px)+4.25rem)] z-30 sm:left-1/2 sm:right-auto sm:top-4 sm:w-[28rem] sm:-translate-x-1/2 lg:w-[31rem]">
+      <div className="relative transition-all duration-200 ease-out active:scale-[0.985] focus-within:-translate-y-0.5 focus-within:scale-[1.01]">
         <input
           type="text"
           value={query}
           onChange={(e) => onQueryChange(e.target.value)}
           placeholder="Konum veya adres ara..."
-          className="w-full rounded-2xl border border-white/[0.06] bg-[rgba(15,15,25,0.78)] px-11 py-3 text-[13px] text-white placeholder:text-white/25 shadow-[0_18px_45px_rgba(0,0,0,0.28)] backdrop-blur-[20px] transition-all focus:outline-none focus:ring-1 focus:ring-white/12 sm:rounded-[9px] sm:px-4 sm:pr-10 sm:py-2.5 sm:text-[13px] sm:shadow-none"
+          className="min-h-[3.5rem] w-full rounded-[20px] border border-white/[0.06] bg-[rgba(15,15,25,0.88)] pl-10 pr-10 py-4 text-[15px] text-white placeholder:text-white/28 shadow-none backdrop-blur-[20px] transition-all duration-200 focus:border-white/10 focus:outline-none focus:ring-1 focus:ring-white/8 focus:shadow-none sm:min-h-[3.4rem] sm:rounded-[12px] sm:pl-11 sm:pr-11 sm:py-3.5 sm:text-[15px]"
           role="combobox"
           aria-label="Adres arama"
           aria-expanded={results.length > 0 && !hasSelection}
@@ -88,7 +82,7 @@ export function SearchBar({
       )}
 
       {hasSelection && (
-        <div className="panel-fade-up mt-2 rounded-2xl glass-panel px-3 py-2.5 sm:rounded-[9px] sm:bg-transparent sm:px-0 sm:py-0 sm:backdrop-blur-none sm:border-0 sm:shadow-none">
+        <div className="panel-fade-up mt-2 rounded-2xl glass-panel px-3 py-2.5 sm:rounded-[9px] sm:bg-transparent sm:px-0 sm:py-0 sm:border-0 sm:backdrop-blur-none sm:shadow-none">
           <div className="hide-scrollbar flex items-center gap-1.5 overflow-x-auto">
             <span className="shrink-0 text-[10px] uppercase tracking-[0.18em] text-white/[0.28]">
               Yarıçap

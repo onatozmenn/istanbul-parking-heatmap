@@ -1,14 +1,14 @@
 import { occupancyToCss } from "../lib/colors";
 import { deltaToCss } from "../lib/deltaColors";
 import { dayName, formatHour, formatOccupancy } from "../lib/format";
-import { legendGradientCss, modeAccentCss } from "../lib/isochroneColors";
+import { contourFillColor, modeAccentCss } from "../lib/isochroneColors";
 import type { ColumnStyle } from "../layers/parkingColumnLayer";
 import type { TimeSlot, TransportMode } from "../types";
 
 const STYLE_LABELS: Record<ColumnStyle, string> = {
-  hexgrid: "Alt\u0131gen",
-  columns: "S\u00FCtun",
-  bars: "\u00C7ubuk",
+  hexgrid: "Altıgen",
+  columns: "Sütun",
+  bars: "Çubuk",
 };
 
 const STYLE_ORDER: ColumnStyle[] = ["columns", "bars", "hexgrid"];
@@ -24,6 +24,20 @@ interface MobileInsightsPanelProps {
   onColumnStyleChange?: (style: ColumnStyle) => void;
   isochroneActive?: boolean;
   isochroneMode?: TransportMode;
+}
+
+function rgbaToCss(color: [number, number, number, number]) {
+  return `rgba(${color[0]}, ${color[1]}, ${color[2]}, ${(color[3] / 255).toFixed(2)})`;
+}
+
+function SwatchBar({ colors }: { colors: string[] }) {
+  return (
+    <div className="flex h-2.5 overflow-hidden rounded-full">
+      {colors.map((color, index) => (
+        <span key={`${color}-${index}`} className="h-full flex-1" style={{ backgroundColor: color }} />
+      ))}
+    </div>
+  );
 }
 
 export function MobileInsightsPanel({
@@ -43,33 +57,28 @@ export function MobileInsightsPanel({
   const selectedEnforcedFraction = cityEnforcedFraction[selectedIndex] ?? 0;
   const mostlyNotEnforced = selectedEnforcedFraction < 0.5;
 
-  const regularStops = Array.from({ length: 20 }, (_, i) => {
-    const occ = i / 19;
-    return `${occupancyToCss(occ)} ${Math.round((i / 19) * 100)}%`;
-  });
-
-  const deltaStops = Array.from({ length: 11 }, (_, i) => {
-    const delta = (i - 5) * 0.06;
-    return `${deltaToCss(delta, true)} ${Math.round((i / 10) * 100)}%`;
-  });
-
-  const accent = isochroneActive && isochroneMode ? modeAccentCss(isochroneMode) : occupancyToCss(selectedAverage);
+  const accent = isochroneActive && isochroneMode
+    ? modeAccentCss(isochroneMode)
+    : occupancyToCss(selectedAverage);
 
   const legend = comparing
     ? {
-        title: "Kar\u015F\u0131la\u015Ft\u0131rma",
-        gradient: `linear-gradient(to right, ${deltaStops.join(", ")})`,
+        title: "Karşılaştırma",
+        colors: Array.from({ length: 11 }, (_, i) => {
+          const delta = (i - 5) * 0.06;
+          return deltaToCss(delta, true);
+        }),
         labels: ["-30%", "0", "+30%"],
       }
     : isochroneActive && isochroneMode
       ? {
-          title: "Ula\u015F\u0131m halkalar\u0131",
-          gradient: legendGradientCss(isochroneMode),
+          title: "Ulaşım halkaları",
+          colors: Array.from({ length: 10 }, (_, i) => rgbaToCss(contourFillColor(isochroneMode, i))),
           labels: ["2 dk", "10", "20"],
         }
       : {
           title: "Doluluk",
-          gradient: `linear-gradient(to right, ${regularStops.join(", ")})`,
+          colors: Array.from({ length: 12 }, (_, i) => occupancyToCss(i / 11)),
           labels: ["0%", "60%", "80%", "100%"],
         };
 
@@ -82,14 +91,16 @@ export function MobileInsightsPanel({
           </p>
 
           <div className="shrink-0 text-right">
-            <p className="text-[10px] text-white/[0.28]">{"Se\u00E7ili saat"}</p>
+            <p className="text-[10px] text-white/[0.28]">Seçili saat</p>
             <p className="mt-1 text-sm font-semibold tabular-nums" style={{ color: accent }}>
               {formatOccupancy(selectedAverage, !mostlyNotEnforced)}
             </p>
           </div>
         </div>
 
-        <div className="mt-3 h-2.5 rounded-full" style={{ background: legend.gradient }} />
+        <div className="mt-3">
+          <SwatchBar colors={legend.colors} />
+        </div>
 
         <div className="mt-1.5 flex justify-between text-[10px] tabular-nums text-white/[0.28]">
           {legend.labels.map((label) => (
@@ -99,7 +110,7 @@ export function MobileInsightsPanel({
 
         {is3D && columnStyle && onColumnStyleChange && !comparing && !isochroneActive && (
           <div className="mt-3 border-t border-white/[0.06] pt-3">
-            <p className="text-[10px] uppercase tracking-[0.18em] text-white/[0.24]">{"3B g\u00F6r\u00FCn\u00FCm"}</p>
+            <p className="text-[10px] uppercase tracking-[0.18em] text-white/[0.24]">3B görünüm</p>
             <div className="mt-2 flex flex-wrap gap-1.5">
               {STYLE_ORDER.map((style) => (
                 <button
@@ -122,7 +133,7 @@ export function MobileInsightsPanel({
       <section className="rounded-2xl border border-white/[0.06] bg-white/[0.03] px-3 py-3">
         <div className="flex items-start justify-between gap-3">
           <p className="text-[10px] font-medium uppercase tracking-[0.22em] text-white/[0.28]">
-            {"Haftal\u0131k g\u00F6r\u00FCn\u00FCm"}
+            Haftalık görünüm
           </p>
 
           <div className="shrink-0 text-right">
@@ -185,14 +196,17 @@ export function MobileInsightsPanel({
 
         <div className="mt-3 flex items-center justify-between gap-2 border-t border-white/[0.06] pt-3">
           <div>
-            <p className="text-[10px] text-white/[0.28]">{"\u015Eehir ortalamas\u0131"}</p>
-            <p className="mt-1 text-sm font-semibold tabular-nums" style={{ color: occupancyToCss(selectedAverage, !mostlyNotEnforced) }}>
+            <p className="text-[10px] text-white/[0.28]">Şehir ortalaması</p>
+            <p
+              className="mt-1 text-sm font-semibold tabular-nums"
+              style={{ color: occupancyToCss(selectedAverage, !mostlyNotEnforced) }}
+            >
               {formatOccupancy(selectedAverage, !mostlyNotEnforced)}
             </p>
           </div>
 
           <div className="text-right">
-            <p className="text-[10px] text-white/[0.28]">{"Saya\u00E7 aktifli\u011Fi"}</p>
+            <p className="text-[10px] text-white/[0.28]">Sayaç aktifliği</p>
             <p className="mt-1 text-sm font-semibold tabular-nums text-white/75">
               %{Math.round(selectedEnforcedFraction * 100)}
             </p>

@@ -13,8 +13,8 @@ import { pointInFeature } from "../lib/geo";
  * Create deck.gl layers for isochrone visualization.
  *
  * Renders 10 contour bands (every 2 min from 2-20) largest-first for correct
- * stacking. Uses a rich color ramp with fading alpha for a smooth gradient
- * glow effect. Major contour lines (5, 10, 15, 20) get visible strokes.
+ * stacking. Uses a rich color ramp with fading alpha for a smooth glow
+ * effect. Major contour lines (5, 10, 15, 20) get visible strokes.
  *
  * Also renders:
  * - An outer glow halo beyond the 20-min ring

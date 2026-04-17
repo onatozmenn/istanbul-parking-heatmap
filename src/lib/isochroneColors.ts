@@ -1,14 +1,13 @@
 import type { TransportMode } from "../types";
 
 /**
- * Isochrone color system - smooth multi-stop gradients per transport mode.
+ * Isochrone color system with multi-stop color ramps per transport mode.
  *
  * Each mode has a rich color ramp from vivid (inner/close) to faint (outer/far).
- * Modeled after the parking occupancy gradient (many stops for smooth blending)
- * but using mode-specific hue ranges:
- *   - driving:  cyan-blue spectrum
- *   - cycling:  emerald-teal spectrum
- *   - walking:  amber-orange spectrum
+ * Built to keep clear separation between:
+ *   - driving: cyan-blue spectrum
+ *   - cycling: emerald-teal spectrum
+ *   - walking: amber-orange spectrum
  */
 
 interface ColorStop {
@@ -17,7 +16,7 @@ interface ColorStop {
   b: number;
 }
 
-// Rich multi-stop gradients per mode (inner -> outer)
+// Rich multi-stop color ramps per mode (inner -> outer)
 const MODE_RAMPS: Record<TransportMode, ColorStop[]> = {
   driving: [
     { r: 147, g: 197, b: 253 }, // light sky blue (2 min - very close)
@@ -123,17 +122,6 @@ export function originColors(mode: TransportMode) {
     glow: [core.r, core.g, core.b, 25] as [number, number, number, number],
     pulse: [light.r, light.g, light.b, 50] as [number, number, number, number],
   };
-}
-
-/** CSS gradient string for legend */
-export function legendGradientCss(mode: TransportMode): string {
-  const ramp = MODE_RAMPS[mode];
-  const stops = ramp.map((stop, i) => {
-    const alpha = ALPHA_CURVE[i] / 255;
-    const pct = Math.round((i / (ramp.length - 1)) * 100);
-    return `rgba(${stop.r},${stop.g},${stop.b},${alpha.toFixed(2)}) ${pct}%`;
-  });
-  return `linear-gradient(to right, ${stops.join(", ")})`;
 }
 
 /** Mode accent color as CSS for UI elements */

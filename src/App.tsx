@@ -8,7 +8,6 @@ import { useMapView } from "./hooks/useMapView";
 import { getInitialUrlState, useUrlSync } from "./hooks/useUrlState";
 import { useSearch } from "./hooks/useSearch";
 import { useComparison } from "./hooks/useComparison";
-import { useIsochrone } from "./hooks/useIsochrone";
 import { createRadiusOverlayLayer } from "./layers/radiusOverlayLayer";
 import { ParkingMap } from "./components/ParkingMap";
 import { Header } from "./components/Header";
@@ -35,8 +34,6 @@ function App() {
 
   const search = useSearch(blocks, timeSlot);
   const comparison = useComparison(urlInit.comparing, urlInit.refDow, urlInit.refHour);
-  const isochrone = useIsochrone({ initialActive: urlInit.isoActive });
-
   const pendingBlockId = useMemo(() => urlInit.blockId ?? null, []);
 
   useEffect(() => {
@@ -111,12 +108,12 @@ function App() {
 
   if (error) {
     return (
-      <div className="flex h-screen w-screen items-center justify-center bg-gray-950">
+      <div className="flex h-[100dvh] w-screen items-center justify-center bg-gray-950">
         <div className="text-center">
-          <p className="mb-2 text-lg text-red-400">Park verileri y\u00FCklenemedi</p>
+          <p className="mb-2 text-lg text-red-400">Park verileri yüklenemedi</p>
           <p className="text-sm text-gray-500">{error}</p>
           <p className="mt-4 text-xs text-gray-600">
-            Veri olu\u015Fturmak i\u00E7in <code className="rounded bg-gray-800 px-1.5 py-0.5">python3 scripts/fetch_ispark_data.py</code> \u00E7al\u0131\u015Ft\u0131r\u0131n
+            Veri oluşturmak için <code className="rounded bg-gray-800 px-1.5 py-0.5">python3 scripts/fetch_ispark_data.py</code> çalıştırın
           </p>
         </div>
       </div>
@@ -124,14 +121,14 @@ function App() {
   }
 
   return (
-    <div className="relative h-screen w-screen overflow-hidden bg-gray-950">
+    <div className="relative h-[100dvh] w-screen overflow-hidden bg-gray-950">
       {loading && (
         <div className="absolute inset-0 z-50 flex items-center justify-center bg-gray-950">
           <div className="text-center">
             <h1 className="mb-2 text-2xl font-semibold">
-              {"\u0130stanbul Park"} <span className="font-light text-gray-400">{"Is\u0131 Haritas\u0131"}</span>
+              İstanbul Park <span className="font-light text-gray-400">Isı Haritası</span>
             </h1>
-            <p className="text-sm text-gray-500">Park verileri y\u00FCkleniyor...</p>
+            <p className="text-sm text-gray-500">Park verileri yükleniyor...</p>
           </div>
         </div>
       )}
@@ -149,28 +146,21 @@ function App() {
         columnStyle={columnStyle}
       />
 
-      <div className="pointer-events-none absolute inset-x-0 top-0 z-30 px-3 pt-[calc(env(safe-area-inset-top,0px)+0.75rem)] sm:px-4 sm:pt-3">
-        <Header generated={generated} />
-        <div className="mt-2 sm:mt-3">
-          <SearchBar
-            query={search.query}
-            results={search.results}
-            isSearching={search.isSearching}
-            radius={search.radius}
-            hasSelection={search.selectedResult !== null}
-            onQueryChange={search.setQuery}
-            onSelectResult={handleSearchSelect}
-            onClear={search.clearSearch}
-            onRadiusChange={search.setRadius}
-          />
-        </div>
-      </div>
+      <SearchBar
+        query={search.query}
+        results={search.results}
+        isSearching={search.isSearching}
+        radius={search.radius}
+        hasSelection={search.selectedResult !== null}
+        onQueryChange={search.setQuery}
+        onSelectResult={handleSearchSelect}
+        onClear={search.clearSearch}
+        onRadiusChange={search.setRadius}
+      />
 
       <IsochroneControl
-        isActive={isochrone.isActive}
         blocks={blocks}
         timeSlot={timeSlot}
-        onToggleActive={isochrone.toggleActive}
       />
 
       {search.selectedResult && (
@@ -180,6 +170,8 @@ function App() {
           onBlockClick={handleBlockClick}
         />
       )}
+
+      <Header generated={generated} />
 
       <WeekHeatmap
         cityAverages={cityAverages}
@@ -197,7 +189,7 @@ function App() {
 
       {comparison.comparing && viewState.zoom < COLUMN_ZOOM_MIN && (
         <div className="absolute left-1/2 top-16 z-20 -translate-x-1/2 rounded-lg border border-purple-500/30 bg-purple-500/20 px-3 py-1.5 text-[11px] text-purple-300">
-          Fark g\u00F6r\u00FCn\u00FCm\u00FC i\u00E7in yak\u0131nla\u015Ft\u0131r\u0131n
+          Fark görünümü için yakınlaştırın
         </div>
       )}
 
