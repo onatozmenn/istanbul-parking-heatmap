@@ -26,7 +26,7 @@ export function SearchBar({
   onRadiusChange,
 }: SearchBarProps) {
   return (
-    <div className="absolute left-3 right-3 top-[calc(env(safe-area-inset-top,0px)+4.5rem)] z-30 sm:left-1/2 sm:right-auto sm:top-4 sm:w-80 sm:-translate-x-1/2">
+    <div className="pointer-events-auto w-full sm:mx-auto sm:max-w-[34rem]">
       <div className="relative">
         <Search
           size={16}
