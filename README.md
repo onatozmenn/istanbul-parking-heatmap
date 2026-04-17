@@ -2,7 +2,7 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-İstanbul İSPARK otoparkları için zamansal doluluk ısı haritası. Herhangi bir haftanın gününü ve saatini seçin; harita şehirdeki her İSPARK otoparkının tahmini doluluk oranını göstersin — İBB Açık Veri Portalı'ndaki İSPARK API'sinden çekilen gerçek otopark verileri kullanılarak oluşturulmuştur.
+İstanbul İSPARK otoparkları için zamansal doluluk ısı haritası. Herhangi bir haftanın gününü ve saatini seçin; harita şehirdeki her İSPARK otoparkının doluluk oranını göstersin — İBB Açık Veri Portalı'ndaki İSPARK API'sinden saatlik olarak toplanan gerçek doluluk verileri kullanılarak oluşturulmuştur.
 
 ![İstanbul Park Isı Haritası](public/data/screenshot.png)
 
@@ -10,7 +10,7 @@
 
 ## Ne yapar
 
-- **Otopark başına 168 slotluk haftalık profil**: 7 gün × 24 saat doluluk oranı, İSPARK anlık verilerinden türetilir
+- **Otopark başına 168 slotluk haftalık profil**: 7 gün × 24 saat doluluk oranı, İSPARK API'sinden saatlik olarak toplanan gerçek verilerden hesaplanır
 - **Çok katmanlı görselleştirme**: şehir ölçeğinde ısı haritası → mahalle ölçeğinde 3D sütunlar → sokak ölçeğinde yol segmentleri ve bireysel park yeri noktaları
 - **Zaman oynatma**: hafta boyunca kaydırın veya oynat düğmesine basarak talebin nasıl değiştiğini izleyin
 - **Otopark detay paneli**: otopark bazında saatlik doluluk dağılımı, kapasite, çalışma saatleri
@@ -26,7 +26,7 @@ Tüm veriler herkese açık, kimlik doğrulama gerektirmeyen uç noktalardan gel
 | Kaynak | API | Kullanım amacı |
 |---|---|---|
 | [İBB Açık Veri Portalı](https://data.ibb.gov.tr) | `api.ibb.gov.tr/ispark/Park` | İSPARK otopark konumları, kapasiteler, anlık doluluk |
-| İSPARK API | Anlık doluluk + ilçe/tip çarpanları | 168 slotluk haftalık doluluk profilleri |
+| İSPARK API (saatlik) | Saatte 1 otomatik toplama | Gerçek haftalık doluluk profilleri (GitHub Actions ile) |
 
 Harita altlığı [CARTO Dark Matter](https://carto.com/basemaps/) açık vektör haritasıdır (token gerekmez).
 
@@ -34,7 +34,9 @@ Harita altlığı [CARTO Dark Matter](https://carto.com/basemaps/) açık vektö
 
 - **Frontend**: Vite 7 + React 19 + TypeScript + Tailwind CSS v4
 - **Haritalama**: [deck.gl](https://deck.gl) v9 katmanları, [MapLibre GL](https://maplibre.org) üzerinde `react-map-gl` ile
-- **Veri hattı**: Python 3 standart kütüphanesi — `requirements.txt` gerekmez
+- **Veri hattı**: Python 3 standart kütüphanesi + SQLite — `requirements.txt` gerekmez
+- **Otomasyon**: GitHub Actions ile saatlik veri toplama ve haftalık profil güncelleme
+- **Test**: Vitest ile birim testleri
 - **Yönlendirme (opsiyonel)**: İzokron hesaplaması için Docker'da çalışan [Valhalla](https://github.com/valhalla/valhalla)
 
 ## Kurulum
@@ -64,29 +66,46 @@ istanbul-parking-heatmap/
 │   ├── parking_week.json         # 168 slotluk doluluk profilleri
 │   ├── enforcement_schedules.json # Çalışma saatleri
 │   └── pressure_311.json         # Basınç skorları
+├── data/               # SQLite veritabanı (saatlik snapshot'lar)
+│   └── ispark_history.db         # Tüm toplanan veriler
 ├── scripts/            # Python veri hattı
-│   └── fetch_ispark_data.py      # İSPARK API → haftalık profil üretimi
+│   ├── fetch_ispark_data.py      # İSPARK API → simüle haftalık profil (eski)
+│   ├── collect_hourly.py         # Saatlik snapshot toplayıcı → SQLite
+│   └── build_profiles.py         # SQLite → gerçek haftalık profiller
+├── .github/workflows/  # Otomatik veri toplama
+│   ├── collect-hourly.yml        # Her saat API'den veri çek & commit
+│   └── build-profiles.yml        # Her Pazartesi profilleri güncelle
 ├── src/
 │   ├── App.tsx
 │   ├── components/     # Harita, paneller, kontroller, ipuçları
 │   ├── hooks/          # Veri yükleme, zaman dilimi, URL durumu, izokronlar
 │   ├── layers/         # deck.gl katman fabrikaları (zoom seviyesine göre)
-│   ├── lib/            # Renk ölçekleri, coğrafi yardımcılar
+│   ├── lib/            # Renk ölçekleri, sabitler, coğrafi yardımcılar
+│   ├── __tests__/      # Vitest birim testleri
 │   └── types.ts
 └── docker-compose.yml  # İzokronlar için opsiyonel Valhalla servisi
 ```
 
 ## Doluluk nasıl hesaplanır
 
-İSPARK API'si (`api.ibb.gov.tr/ispark/Park`) her otopark için anlık `capacity` ve `emptyCapacity` değerlerini döndürür. Veri hattı:
+İSPARK API'si (`api.ibb.gov.tr/ispark/Park`) her otopark için anlık `capacity` ve `emptyCapacity` değerlerini döndürür.
 
-1. **Anlık doluluk oranını hesaplar**: `(capacity - emptyCapacity) / capacity`
-2. **İlçe çarpanı uygular**: merkezi ilçeler (Fatih, Beşiktaş, Beyoğlu, Şişli) daha yüksek çarpanla ağırlıklandırılır
-3. **Park tipi çarpanı uygular**: yol üstü parklar kapalı otoparklara göre daha yoğun kabul edilir
-4. **168 slotluk haftalık profil üretir**: İstanbul'un park alışkanlıklarına uygun saatlik kalıplar (sabah piki, öğle yoğunluğu, akşam trafiği, Cuma akşamı etkisi, hafta sonu azalması)
-5. **Çalışma saatlerine göre uygulama takvimi oluşturur**: çalışma saatleri dışında doluluk sıfıra düşer
+### Gerçek veri pipeline'ı (aktif)
 
-Sonuç, otopark başına 168 elemanlı bir dizi (`gün * 24 + saat`) olarak tek bir JSON dosyasında sunulur.
+GitHub Actions ile otomatik çalışır — siz hiçbir şey yapmazsınız:
+
+1. **Saatlik toplama** (`collect_hourly.py`): Her saat başı İSPARK API'den tüm otoparkların anlık doluluk oranı çekilir ve SQLite veritabanına kaydedilir
+2. **Haftalık profil oluşturma** (`build_profiles.py`): Her Pazartesi, biriken tüm snapshot'lardan her otopark × her (gün, saat) çifti için gerçek ortalama doluluk hesaplanır
+3. **Eksik slot interpolasyonu**: Henüz veri toplanmamış saatler, komşu saatlerden ve aynı saatteki diğer günlerden interpolasyonla doldurulur
+4. **Otomatik commit**: Güncellenmiş profiller otomatik olarak repo'ya push'lanır
+
+```
+İSPARK API ──(her saat)──→ SQLite DB ──(her Pazartesi)──→ parking_week.json
+```
+
+### Eski simülasyon pipeline'ı (yedek)
+
+Yeterli gerçek veri birikmeden önce veya hızlı başlangıç için `fetch_ispark_data.py` kullanılabilir. Bu script anlık doluluk oranından ilçe/tip çarpanları ve İstanbul park alışkanlıklarına uygun saatlik kalıplar uygulayarak sentetik bir haftalık profil üretir.
 
 ## Kullanılabilir komutlar
 
@@ -95,10 +114,13 @@ pnpm dev                  # Vite geliştirme sunucusu
 pnpm build                # Üretim derlemesi (tsc -b && vite build)
 pnpm lint                 # ESLint
 pnpm preview              # Derlenmiş paketi önizle
+pnpm test                 # Birim testlerini çalıştır
 
 # Veri hattı
-pnpm fetch-data           # İSPARK API'den veri çek
-pnpm pipeline             # Tüm veri hattını çalıştır
+pnpm collect              # Anlık snapshot topla (SQLite'a yazar)
+pnpm build-profiles       # Gerçek haftalık profilleri oluştur (min 7 gün veri gerekli)
+pnpm build-profiles:force # Yeterli veri olmasa da profil oluştur
+pnpm fetch-data           # Eski simülasyon yöntemiyle veri çek (yedek)
 ```
 
 ## Opsiyonel: İzokronlar
@@ -113,9 +135,9 @@ docker compose up -d           # İlk çalıştırmada Türkiye OSM verisini ind
 
 ## Dikkat edilmesi gerekenler
 
-- **Doluluk tahminidir.** Anlık İSPARK verisi, ilçe/tip çarpanları ve saatlik kalıplar kullanılarak simüle edilir.
+- **Veriler gerçek ve otomatik güncellenir.** GitHub Actions ile saatte bir İSPARK API'sinden çekilen anlık doluluk verileri toplanır, haftada bir gerçek ortalama profiller hesaplanır. Yeni toplanan verilerde ilk hafta bazı saatler eksik olabilir; bu slotlar komşu saatlerden interpolasyonla doldurulur.
 - **Sadece İSPARK otoparkları.** Özel otoparklar ve sokak üzeri düzensiz park veride yoktur.
-- **Tipik hafta, gerçek zamanlı değil.** Veri hattı İSPARK anlık verisinden tipik bir haftalık profil üretir; canlı akış yoktur.
+- **Tipik hafta, gerçek zamanlı değil.** Profiller geçmiş verilerin ortalamasıdır; anlık canlı akış yoktur. Bayram, etkinlik gibi özel günler ortalamayı etkileyebilir.
 - **Çalışma saatleri otopark bazındadır.** Çalışma saatleri dışında doluluk sıfır olarak gösterilir.
 
 ## Lisans
