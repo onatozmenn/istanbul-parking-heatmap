@@ -28,7 +28,6 @@ function lerp3(
 export function occupancyToRgb(occupancy: number): [number, number, number] {
   if (occupancy < 0) return GRAY;
   if (occupancy <= 0.59) {
-    // Pure green, fade brightness slightly with occupancy
     const t = occupancy / 0.59;
     return lerp3(GREEN, GREEN, t);
   }
@@ -43,21 +42,19 @@ export function occupancyToRgb(occupancy: number): [number, number, number] {
 /** Returns [r, g, b, a] for deck.gl layers */
 export function occupancyToColor(occupancy: number, enforced = true): [number, number, number, number] {
   if (!enforced) {
-    if (occupancy <= 0) return [...BLUE, 60]; // blue for free parking, no data
-    // Desaturated colors for pressure-based data
+    if (occupancy <= 0) return [...BLUE, 60];
     const rgb = occupancyToRgb(occupancy);
     return [rgb[0], rgb[1], rgb[2], 140];
   }
-  if (occupancy <= 0) return [...GRAY, 100]; // dim gray for no data
+  if (occupancy <= 0) return [...GRAY, 100];
   const rgb = occupancyToRgb(occupancy);
   return [rgb[0], rgb[1], rgb[2], 200];
 }
 
 /** CSS color string for use in HTML/SVG elements */
 export function occupancyToCss(occupancy: number, enforced = true): string {
-  if (!enforced && occupancy <= 0) return "rgb(59, 130, 246)"; // blue
+  if (!enforced && occupancy <= 0) return "rgb(59, 130, 246)";
   if (!enforced && occupancy > 0) {
-    // Desaturated via lower opacity approximation
     const [r, g, b] = occupancyToRgb(occupancy);
     return `rgba(${Math.round(r)}, ${Math.round(g)}, ${Math.round(b)}, 0.55)`;
   }
@@ -69,13 +66,13 @@ export function occupancyToCss(occupancy: number, enforced = true): string {
 /** Occupancy label for accessibility and tooltips */
 export function occupancyLabel(occupancy: number, enforced = true): string {
   if (!enforced) {
-    if (occupancy <= 0) return "Ücretsiz Park";
-    if (occupancy <= 0.59) return "Düşük yoğunluk";
-    if (occupancy <= 0.79) return "Orta yoğunluk";
-    return "Yüksek yoğunluk";
+    if (occupancy <= 0) return "\u00DCcretsiz Park";
+    if (occupancy <= 0.59) return "D\u00FC\u015F\u00FCk yo\u011Funluk";
+    if (occupancy <= 0.79) return "Orta yo\u011Funluk";
+    return "Y\u00FCksek yo\u011Funluk";
   }
   if (occupancy <= 0) return "Veri yok";
-  if (occupancy <= 0.59) return "Müsait";
+  if (occupancy <= 0.59) return "M\u00FCsait";
   if (occupancy <= 0.79) return "Orta";
   return "Zor";
 }

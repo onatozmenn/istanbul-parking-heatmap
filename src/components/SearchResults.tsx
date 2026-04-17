@@ -1,8 +1,8 @@
 import { MapPin } from "lucide-react";
-import type { BlockData, TimeSlot } from "../types";
 import { occupancyToCss, occupancyLabel } from "../lib/colors";
-import { getOccupancy, isEnforced } from "../lib/occupancy";
 import { formatOccupancy } from "../lib/format";
+import { getOccupancy, isEnforced } from "../lib/occupancy";
+import type { BlockData, TimeSlot } from "../types";
 
 interface SearchResultsProps {
   blocks: BlockData[];
@@ -13,49 +13,56 @@ interface SearchResultsProps {
 export function SearchResults({ blocks, timeSlot, onBlockClick }: SearchResultsProps) {
   if (blocks.length === 0) {
     return (
-      <div className="absolute top-20 left-4 z-20 w-64 rounded-[9px] glass-panel px-3 py-3">
-        <p className="text-xs text-gray-500 text-center">Bu alanda blok bulunamadı</p>
+      <div className="absolute bottom-[15.5rem] left-3 right-3 z-30 rounded-3xl glass-panel px-4 py-3 sm:top-20 sm:bottom-auto sm:left-4 sm:right-auto sm:w-64 sm:rounded-[9px]">
+        <p className="text-center text-xs text-gray-400">Bu alanda blok bulunamadı</p>
       </div>
     );
   }
 
   return (
-    <div className="absolute top-20 left-4 z-20 w-64 max-h-[60vh] rounded-[9px] glass-panel overflow-hidden panel-slide-in">
-      <div className="px-3 py-2 border-b border-gray-800/30">
-        <p className="text-[10px] text-gray-400 font-medium uppercase tracking-wider">
-          {blocks.length} Yakın Blok
+    <div className="panel-slide-in absolute bottom-[15.5rem] left-3 right-3 z-30 max-h-[32svh] overflow-hidden rounded-3xl glass-panel sm:top-20 sm:bottom-auto sm:left-4 sm:right-auto sm:max-h-[60vh] sm:w-64 sm:rounded-[9px]">
+      <div className="border-b border-gray-800/30 px-4 py-3 sm:px-3 sm:py-2">
+        <p className="text-[10px] font-medium uppercase tracking-[0.22em] text-white/[0.32] sm:tracking-wider">
+          {blocks.length} yakın blok
         </p>
       </div>
-      <div className="overflow-y-auto max-h-[calc(60vh-32px)]">
+
+      <div className="max-h-[calc(32svh-52px)] overflow-y-auto sm:max-h-[calc(60vh-32px)]">
         {blocks.map((block) => {
-          const occ = getOccupancy(block, timeSlot);
+          const occupancy = getOccupancy(block, timeSlot);
           const enforced = isEnforced(block, timeSlot);
+
           return (
             <button
               key={block.id}
               onClick={() => onBlockClick(block)}
-              className="w-full text-left px-3 py-2 hover:bg-gray-800/40 transition-colors border-b border-gray-800/20 last:border-0"
+              className="w-full border-b border-gray-800/20 px-4 py-3 text-left transition-colors hover:bg-gray-800/40 last:border-0 sm:px-3 sm:py-2"
             >
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-1.5 min-w-0">
-                  <MapPin size={10} className="text-gray-500 flex-shrink-0" />
-                  <span className="text-xs text-white truncate">{block.id}</span>
+              <div className="flex items-center justify-between gap-3">
+                <div className="min-w-0">
+                  <div className="flex items-center gap-2">
+                    <MapPin size={11} className="shrink-0 text-gray-500" />
+                    <span className="truncate text-[13px] text-white sm:text-xs">{block.id}</span>
+                  </div>
+                  <span className="mt-1 block truncate text-[11px] text-gray-500 sm:text-[10px]">
+                    {block.street || block.hood}
+                  </span>
                 </div>
-                <span
-                  className="text-xs font-medium flex-shrink-0 ml-2"
-                  style={{ color: occupancyToCss(occ, enforced) }}
-                >
-                  {formatOccupancy(occ, enforced)}
-                </span>
-              </div>
-              <div className="flex items-center justify-between mt-0.5">
-                <span className="text-[10px] text-gray-500 truncate">{block.street || block.hood}</span>
-                <span
-                  className="text-[9px] flex-shrink-0 ml-2"
-                  style={{ color: occupancyToCss(occ, enforced) }}
-                >
-                  {occupancyLabel(occ, enforced)}
-                </span>
+
+                <div className="shrink-0 text-right">
+                  <span
+                    className="block text-[13px] font-semibold sm:text-xs"
+                    style={{ color: occupancyToCss(occupancy, enforced) }}
+                  >
+                    {formatOccupancy(occupancy, enforced)}
+                  </span>
+                  <span
+                    className="mt-1 block text-[10px] sm:text-[9px]"
+                    style={{ color: occupancyToCss(occupancy, enforced) }}
+                  >
+                    {occupancyLabel(occupancy, enforced)}
+                  </span>
+                </div>
               </div>
             </button>
           );
@@ -64,7 +71,3 @@ export function SearchResults({ blocks, timeSlot, onBlockClick }: SearchResultsP
     </div>
   );
 }
-
-
-
-

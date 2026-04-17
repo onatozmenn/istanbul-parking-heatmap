@@ -1,6 +1,6 @@
-const DAY_NAMES = ["Pzt", "Sal", "Çar", "Per", "Cum", "Cmt", "Paz"] as const;
+const DAY_NAMES = ["Pzt", "Sal", "\u00C7ar", "Per", "Cum", "Cmt", "Paz"] as const;
 const DAY_NAMES_FULL = [
-  "Pazartesi", "Salı", "Çarşamba", "Perşembe", "Cuma", "Cumartesi", "Pazar",
+  "Pazartesi", "Sal\u0131", "\u00C7ar\u015Famba", "Per\u015Fembe", "Cuma", "Cumartesi", "Pazar",
 ] as const;
 
 /** Short day name from ISO dow (0=Mon..6=Sun) */
@@ -20,7 +20,7 @@ export function formatHour(hour: number): string {
 
 /** Format occupancy as percentage string */
 export function formatOccupancy(occupancy: number, enforced = true): string {
-  if (occupancy <= 0) return enforced ? "N/A" : "Ücretsiz";
+  if (occupancy <= 0) return enforced ? "N/A" : "\u00DCcretsiz";
   return `${Math.round(occupancy * 100)}%`;
 }
 

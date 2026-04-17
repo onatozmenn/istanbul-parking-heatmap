@@ -1,6 +1,6 @@
-import { Play, Pause } from "lucide-react";
-import { dayName } from "../lib/format";
-import { formatHour, formatTimeSlot } from "../lib/format";
+import { useState } from "react";
+import { ChevronDown, ChevronUp, Pause, Play } from "lucide-react";
+import { dayName, formatHour, formatTimeSlot } from "../lib/format";
 import type { TimeSlot } from "../types";
 
 interface TimeControlProps {
@@ -12,6 +12,7 @@ interface TimeControlProps {
   onTogglePlay: () => void;
   onSpeedChange: (speed: number) => void;
   children?: React.ReactNode;
+  mobilePanel?: React.ReactNode;
 }
 
 const SPEED_OPTIONS = [
@@ -32,26 +33,122 @@ export function TimeControl({
   onTogglePlay,
   onSpeedChange,
   children,
+  mobilePanel,
 }: TimeControlProps) {
+  const [showInsights, setShowInsights] = useState(false);
+
   return (
-    <div className="absolute bottom-0 left-0 right-0 z-20 pointer-events-none safe-bottom">
-      <div className="mx-auto max-w-2xl px-3 sm:px-4 pb-2 sm:pb-4 pointer-events-auto">
-        <div className="rounded-[9px] glass-panel px-3 sm:px-5 py-2.5 sm:py-4 panel-fade-up">
-          {/* Day pills + time label */}
-          <div className="flex items-center justify-center gap-1 mb-1 sm:hidden">
-            <span className={`text-[11px] font-medium text-white/80 ${isPlaying ? "play-pulse" : ""}`}>
-              {formatTimeSlot(timeSlot.dow, timeSlot.hour)}
-            </span>
+    <div className="pointer-events-none absolute bottom-0 left-0 right-0 z-20 safe-bottom">
+      <div className="pointer-events-auto px-3 pb-3 sm:hidden">
+        <div className="mobile-sheet panel-fade-up rounded-[28px] glass-panel px-4 pb-4 pt-2.5">
+          <div className="mx-auto h-1 w-11 rounded-full bg-white/[0.14]" />
+
+          <div className="mt-3 flex items-start justify-between gap-3">
+            <div className="min-w-0 flex-1">
+              <p className={`text-[15px] font-semibold tracking-tight text-white ${isPlaying ? "play-pulse" : ""}`}>
+                {formatTimeSlot(timeSlot.dow, timeSlot.hour)}
+              </p>
+            </div>
+            {children && <div className="shrink-0">{children}</div>}
           </div>
-          <div className="hidden sm:flex items-center justify-center gap-3 mb-3">
-            <span className={`text-[13px] font-medium text-white/90 tracking-wide ${isPlaying ? "play-pulse" : ""}`}>
+
+          <div className="hide-scrollbar mt-3 overflow-x-auto">
+            <div className="flex min-w-max gap-1.5 pb-1">
+              {Array.from({ length: 7 }, (_, i) => (
+                <button
+                  key={i}
+                  onClick={() => onDowChange(i)}
+                  role="tab"
+                  aria-selected={i === timeSlot.dow}
+                  aria-label={dayName(i)}
+                  className={`rounded-full px-3 py-1.5 text-[11px] font-medium transition-colors ${
+                    i === timeSlot.dow
+                      ? "bg-white text-gray-950"
+                      : "bg-white/[0.06] text-white/[0.58]"
+                  }`}
+                >
+                  {dayName(i)}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="mt-3 flex items-center gap-3">
+            <button
+              onClick={onTogglePlay}
+              className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-white text-gray-950 transition-transform active:scale-95"
+              aria-label={isPlaying ? "Duraklat" : "Oynat"}
+            >
+              {isPlaying ? <Pause size={17} /> : <Play size={17} className="ml-0.5" />}
+            </button>
+
+            <div className="min-w-0 flex-1">
+              <div className="mb-2 flex items-center justify-between">
+                <span className="text-[10px] uppercase tracking-[0.18em] text-white/[0.24]">Saat</span>
+                <span className="text-[12px] font-medium tabular-nums text-white/[0.72]">{formatHour(timeSlot.hour)}</span>
+              </div>
+              <input
+                type="range"
+                min={0}
+                max={23}
+                value={timeSlot.hour}
+                onChange={(e) => onHourChange(parseInt(e.target.value, 10))}
+                className="w-full"
+                aria-label="Saat"
+                aria-valuetext={formatHour(timeSlot.hour)}
+              />
+            </div>
+          </div>
+
+          <div className="mt-3 flex items-center justify-between gap-3">
+            <div className="hide-scrollbar flex items-center gap-1 overflow-x-auto rounded-full bg-white/[0.04] p-1">
+              {SPEED_OPTIONS.map((opt) => (
+                <button
+                  key={opt.value}
+                  onClick={() => onSpeedChange(opt.value)}
+                  aria-label={`H\u0131z ${opt.label}`}
+                  aria-pressed={speed === opt.value}
+                  className={`shrink-0 rounded-full px-2.5 py-1 text-[10px] font-medium transition-colors ${
+                    speed === opt.value
+                      ? "bg-white text-gray-950"
+                      : "text-white/[0.45]"
+                  }`}
+                >
+                  {opt.label}
+                </button>
+              ))}
+            </div>
+
+            {mobilePanel && (
+              <button
+                onClick={() => setShowInsights((value) => !value)}
+                className="flex shrink-0 items-center gap-1 rounded-full border border-white/[0.08] bg-white/[0.03] px-3 py-1.5 text-[11px] font-medium text-white/[0.72]"
+                aria-expanded={showInsights}
+              >
+                {"Haftal\u0131k"}
+                {showInsights ? <ChevronDown size={14} /> : <ChevronUp size={14} />}
+              </button>
+            )}
+          </div>
+
+          {showInsights && mobilePanel && (
+            <div className="mt-3 border-t border-white/[0.06] pt-3">
+              {mobilePanel}
+            </div>
+          )}
+        </div>
+      </div>
+
+      <div className="mx-auto hidden max-w-2xl px-4 pb-4 sm:block">
+        <div className="panel-fade-up rounded-[9px] glass-panel px-5 py-4">
+          <div className="mb-3 flex items-center justify-center gap-3">
+            <span className={`text-[13px] font-medium tracking-wide text-white/90 ${isPlaying ? "play-pulse" : ""}`}>
               {formatTimeSlot(timeSlot.dow, timeSlot.hour)}
             </span>
             {children}
           </div>
 
-          {/* Day pills */}
-          <div className="flex justify-center gap-0.5 sm:gap-1 mb-2 sm:mb-4" role="tablist" aria-label="Haftanın günleri">
+          <div className="mb-4 flex justify-center gap-1" role="tablist" aria-label={"Haftan\u0131n g\u00FCnleri"}>
             {Array.from({ length: 7 }, (_, i) => (
               <button
                 key={i}
@@ -59,10 +156,10 @@ export function TimeControl({
                 role="tab"
                 aria-selected={i === timeSlot.dow}
                 aria-label={dayName(i)}
-                className={`px-2.5 sm:px-3.5 py-1 sm:py-1.5 rounded-[9px] text-[10px] sm:text-[11px] font-medium transition-all duration-200 ${
+                className={`rounded-[9px] px-3.5 py-1.5 text-[11px] font-medium transition-all duration-200 ${
                   i === timeSlot.dow
                     ? "bg-white text-gray-900 shadow-md shadow-white/10"
-                    : "text-white/40 hover:text-white/70 hover:bg-white/[0.06]"
+                    : "text-white/40 hover:bg-white/[0.06] hover:text-white/70"
                 }`}
               >
                 {dayName(i)}
@@ -70,50 +167,45 @@ export function TimeControl({
             ))}
           </div>
 
-          {/* Hour slider + playback */}
-          <div className="flex items-center gap-3 sm:gap-4">
-            {/* Play/pause */}
+          <div className="flex items-center gap-4">
             <button
               onClick={onTogglePlay}
-              className="flex-shrink-0 w-10 h-10 sm:w-9 sm:h-9 rounded-[9px] bg-white/10 hover:bg-white/15 flex items-center justify-center transition-all duration-200 active:scale-95"
-              aria-label={isPlaying ? "Pause" : "Play"}
+              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[9px] bg-white/10 transition-all duration-200 hover:bg-white/15 active:scale-95"
+              aria-label={isPlaying ? "Duraklat" : "Oynat"}
             >
-              {isPlaying ? <Pause size={16} className="text-white" /> : <Play size={16} className="text-white ml-0.5" />}
+              {isPlaying ? <Pause size={16} className="text-white" /> : <Play size={16} className="ml-0.5 text-white" />}
             </button>
 
-            {/* Hour slider */}
-            <div className="flex-1 relative">
+            <div className="relative flex-1">
               <input
                 type="range"
                 min={0}
                 max={23}
                 value={timeSlot.hour}
-                onChange={(e) => onHourChange(parseInt(e.target.value))}
+                onChange={(e) => onHourChange(parseInt(e.target.value, 10))}
                 className="w-full"
-                aria-label="Hour"
+                aria-label="Saat"
                 aria-valuetext={formatHour(timeSlot.hour)}
               />
-              {/* Tick labels - hidden on mobile */}
-              <div className="hidden sm:flex justify-between mt-1 px-0.5">
-                {HOUR_TICKS.map((h) => (
-                  <span key={h} className="text-[10px] text-white/20 tabular-nums">
-                    {formatHour(h)}
+              <div className="mt-1 flex justify-between px-0.5">
+                {HOUR_TICKS.map((hour) => (
+                  <span key={hour} className="text-[10px] tabular-nums text-white/20">
+                    {formatHour(hour)}
                   </span>
                 ))}
               </div>
             </div>
 
-            {/* Speed selector */}
-            <div className="flex-shrink-0 items-center gap-0.5 bg-white/[0.04] rounded-[9px] p-0.5 hidden sm:flex" role="group" aria-label="Oynatma hızı">
+            <div className="flex shrink-0 items-center gap-0.5 rounded-[9px] bg-white/[0.04] p-0.5" role="group" aria-label={"Oynatma h\u0131z\u0131"}>
               {SPEED_OPTIONS.map((opt) => (
                 <button
                   key={opt.value}
                   onClick={() => onSpeedChange(opt.value)}
-                  aria-label={`Hız ${opt.label}`}
+                  aria-label={`H\u0131z ${opt.label}`}
                   aria-pressed={speed === opt.value}
-                  className={`text-[10px] px-2 py-1 rounded-[9px] transition-all duration-200 ${
+                  className={`rounded-[9px] px-2 py-1 text-[10px] transition-all duration-200 ${
                     speed === opt.value
-                      ? "bg-white/15 text-white font-medium"
+                      ? "bg-white/15 font-medium text-white"
                       : "text-white/30 hover:text-white/60"
                   }`}
                 >
@@ -127,7 +219,3 @@ export function TimeControl({
     </div>
   );
 }
-
-
-
-

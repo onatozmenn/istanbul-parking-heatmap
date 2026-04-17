@@ -17,6 +17,7 @@ import { SearchBar } from "./components/SearchBar";
 import { SearchResults } from "./components/SearchResults";
 import { ComparisonControl } from "./components/ComparisonControl";
 import { IsochroneControl } from "./components/IsochroneControl";
+import { MobileInsightsPanel } from "./components/MobileInsightsPanel";
 import { useSearch } from "./hooks/useSearch";
 import { useComparison } from "./hooks/useComparison";
 import { useIsochrone } from "./hooks/useIsochrone";
@@ -39,7 +40,7 @@ const PROFILE_LABELS: Record<number, string> = {
 const urlInit = getInitialUrlState();
 
 function App() {
-  const { blocks, cityAverages, cityEnforcedFraction, loading, error, generated, dateRange } = useParkingData();
+  const { blocks, cityAverages, cityEnforcedFraction, loading, error, generated } = useParkingData();
   const { timeSlot, isPlaying, speed, setDow, setHour, setSlot, setSpeed, togglePlay } =
     useTimeSlot(urlInit.timeSlot);
   const { viewState, onViewStateChange, flyTo } = useMapView(urlInit.viewState);
@@ -299,8 +300,6 @@ function App() {
       {/* UI overlays */}
       <Header
         generated={generated}
-        dateRange={dateRange}
-        blockCount={blocks.length}
       />
 
       {!isochrone.isActive && (
@@ -338,6 +337,20 @@ function App() {
         onHourChange={setHour}
         onTogglePlay={togglePlay}
         onSpeedChange={setSpeed}
+        mobilePanel={(
+          <MobileInsightsPanel
+            cityAverages={cityAverages}
+            cityEnforcedFraction={cityEnforcedFraction}
+            timeSlot={timeSlot}
+            onCellClick={handleWeekCellClick}
+            comparing={comparison.comparing}
+            is3D={viewState.zoom >= COLUMN_ZOOM_MIN && viewState.zoom < SCATTER_ZOOM_MIN}
+            columnStyle={columnStyle}
+            onColumnStyleChange={setColumnStyle}
+            isochroneActive={isochrone.isActive && isochrone.origin !== null}
+            isochroneMode={isochrone.mode}
+          />
+        )}
       >
         <ComparisonControl
           comparing={comparison.comparing}
