@@ -35,18 +35,18 @@ export function TimeControl({
 }: TimeControlProps) {
   return (
     <div className="absolute bottom-0 left-0 right-0 z-20 pointer-events-none safe-bottom">
-      <div className="mx-auto max-w-2xl px-2 sm:px-4 pb-3 sm:pb-4 pointer-events-auto">
-        <div className="rounded-[9px] glass-panel px-3 sm:px-5 py-3 sm:py-4 panel-fade-up">
+      <div className="mx-auto max-w-2xl px-2 sm:px-4 pb-1 sm:pb-4 pointer-events-auto">
+        <div className="rounded-[9px] glass-panel px-3 sm:px-5 py-2 sm:py-4 panel-fade-up">
           {/* Current time label + comparison control */}
-          <div className="flex items-center justify-center gap-2 sm:gap-3 mb-2 sm:mb-3">
-            <span className={`text-[12px] sm:text-[13px] font-medium text-white/90 tracking-wide ${isPlaying ? "play-pulse" : ""}`}>
+          <div className="flex items-center justify-center gap-2 sm:gap-3 mb-1.5 sm:mb-3">
+            <span className={`text-[11px] sm:text-[13px] font-medium text-white/90 tracking-wide ${isPlaying ? "play-pulse" : ""}`}>
               {formatTimeSlot(timeSlot.dow, timeSlot.hour)}
             </span>
             {children}
           </div>
 
           {/* Day pills */}
-          <div className="flex justify-center gap-0.5 sm:gap-1 mb-2 sm:mb-4" role="tablist" aria-label="Haftanın günleri">
+          <div className="flex justify-center gap-0.5 sm:gap-1 mb-1.5 sm:mb-4" role="tablist" aria-label="Haftanın günleri">
             {Array.from({ length: 7 }, (_, i) => (
               <button
                 key={i}
@@ -54,7 +54,7 @@ export function TimeControl({
                 role="tab"
                 aria-selected={i === timeSlot.dow}
                 aria-label={dayName(i)}
-                className={`px-2.5 sm:px-3.5 py-1 sm:py-1.5 rounded-[9px] text-[10px] sm:text-[11px] font-medium transition-all duration-200 ${
+                className={`px-2 sm:px-3.5 py-0.5 sm:py-1.5 rounded-[9px] text-[10px] sm:text-[11px] font-medium transition-all duration-200 ${
                   i === timeSlot.dow
                     ? "bg-white text-gray-900 shadow-md shadow-white/10"
                     : "text-white/40 hover:text-white/70 hover:bg-white/[0.06]"
@@ -66,11 +66,11 @@ export function TimeControl({
           </div>
 
           {/* Hour slider + playback */}
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2 sm:gap-4">
             {/* Play/pause */}
             <button
               onClick={onTogglePlay}
-              className="flex-shrink-0 w-9 h-9 rounded-[9px] bg-white/10 hover:bg-white/15 flex items-center justify-center transition-all duration-200 active:scale-95"
+              className="flex-shrink-0 w-8 h-8 sm:w-9 sm:h-9 rounded-[9px] bg-white/10 hover:bg-white/15 flex items-center justify-center transition-all duration-200 active:scale-95"
               aria-label={isPlaying ? "Pause" : "Play"}
             >
               {isPlaying ? <Pause size={14} className="text-white" /> : <Play size={14} className="text-white ml-0.5" />}
@@ -88,8 +88,8 @@ export function TimeControl({
                 aria-label="Hour"
                 aria-valuetext={formatHour(timeSlot.hour)}
               />
-              {/* Tick labels */}
-              <div className="flex justify-between mt-1 px-0.5">
+              {/* Tick labels - hidden on mobile */}
+              <div className="hidden sm:flex justify-between mt-1 px-0.5">
                 {HOUR_TICKS.map((h) => (
                   <span key={h} className="text-[10px] text-white/20 tabular-nums">
                     {formatHour(h)}
