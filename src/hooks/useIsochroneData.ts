@@ -29,7 +29,12 @@ export function useIsochroneData() {
 
     try {
       const resp = await fetch(`/data/isochrones/${mode}.json`);
-      if (!resp.ok) throw new Error(`Failed to load ${mode} isochrones: ${resp.status}`);
+      if (resp.status === 404) {
+        throw new Error(
+          `İzokron verisi bulunamadı (${mode}). Valhalla servisi çalıştırılarak veri oluşturulmalıdır.`
+        );
+      }
+      if (!resp.ok) throw new Error(`İzokron verisi yüklenemedi (${mode}): HTTP ${resp.status}`);
       const json: IsochroneSet = await resp.json();
 
       setState((s) => ({
@@ -38,10 +43,12 @@ export function useIsochroneData() {
         data: { ...s.data, [mode]: json },
       }));
     } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      console.warn(`[isochrone] ${message}`);
       setState((s) => ({
         ...s,
         loading: false,
-        error: err instanceof Error ? err.message : String(err),
+        error: message,
       }));
     } finally {
       loadingRef.current.delete(mode);

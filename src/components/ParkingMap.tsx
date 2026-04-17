@@ -5,6 +5,7 @@ import type { Layer, PickingInfo, MapViewState } from "deck.gl";
 import "maplibre-gl/dist/maplibre-gl.css";
 
 import type { BlockData, TimeSlot } from "../types";
+import { METER_DOTS_ZOOM_MIN, getZoomTier } from "../lib/constants";
 import { createParkingHeatmapLayer } from "../layers/parkingHeatmapLayer";
 import { createParkingColumnLayer } from "../layers/parkingColumnLayer";
 import type { ColumnStyle } from "../layers/parkingColumnLayer";
@@ -14,20 +15,7 @@ import { createParkingDeltaPathLayers } from "../layers/parkingDeltaPathLayer";
 import { createMeterDotsLayer } from "../layers/meterDotsLayer";
 import { getBlockTooltipContent, getDeltaTooltipContent } from "./BlockTooltip";
 
-const MAP_STYLE = "https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json";
-
-// Zoom tier boundaries
-const COLUMN_ZOOM_MIN = 13;
-const SCATTER_ZOOM_MIN = 15.5;
-const METER_DOTS_ZOOM_MIN = 18;
-
-type ZoomTier = "heatmap" | "columns" | "scatter";
-
-function getZoomTier(zoom: number): ZoomTier {
-  if (zoom >= SCATTER_ZOOM_MIN) return "scatter";
-  if (zoom >= COLUMN_ZOOM_MIN) return "columns";
-  return "heatmap";
-}
+const MAP_STYLE = import.meta.env.VITE_MAP_STYLE || "https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json";
 
 interface ParkingMapProps {
   blocks: BlockData[];
@@ -142,7 +130,11 @@ export function ParkingMap({
       getTooltip={getTooltip}
       controller
     >
-      <Map mapStyle={MAP_STYLE} />
+      <Map mapStyle={MAP_STYLE} attributionControl={false} />
     </DeckGL>
   );
 }
+
+
+
+

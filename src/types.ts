@@ -35,19 +35,6 @@ export interface TimeSlot {
   hour: number;
 }
 
-/** Block detail from pre-generated data */
-export interface BlockDetail {
-  blockId: string;
-  street: string;
-  meters: number;
-  /** Full 168-slot profile */
-  slots: number[];
-  /** Raw session counts per slot (for display) */
-  sessionCounts: number[];
-  /** 168-element enforcement mask from parent block */
-  enforced?: number[];
-}
-
 /** Playback state */
 export interface PlaybackState {
   isPlaying: boolean;

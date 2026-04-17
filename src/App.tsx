@@ -1,6 +1,7 @@
 import { useState, useCallback, useEffect, useMemo } from "react";
 import type { BlockData, TransportMode } from "./types";
 import type { ColumnStyle } from "./layers/parkingColumnLayer";
+import { COLUMN_ZOOM_MIN, SCATTER_ZOOM_MIN } from "./lib/constants";
 import { useParkingData } from "./hooks/useParkingData";
 import { useTimeSlot } from "./hooks/useTimeSlot";
 import { useMapView } from "./hooks/useMapView";
@@ -267,6 +268,7 @@ function App() {
         mode={isochrone.mode}
         maxMinutes={isochrone.maxMinutes}
         loading={isoData.loading}
+        error={isoData.error}
         snapDistance={snapDistance}
         profileName={PROFILE_LABELS[profileIndex] ?? null}
         onToggleActive={isochrone.toggleActive}
@@ -313,7 +315,7 @@ function App() {
       />
 
       <Legend
-        is3D={viewState.zoom >= 13 && viewState.zoom < 15.5}
+        is3D={viewState.zoom >= COLUMN_ZOOM_MIN && viewState.zoom < SCATTER_ZOOM_MIN}
         comparing={comparison.comparing}
         columnStyle={columnStyle}
         onColumnStyleChange={setColumnStyle}
@@ -322,7 +324,7 @@ function App() {
       />
 
       {/* Comparison note: zoom in for delta view when at heatmap level */}
-      {comparison.comparing && viewState.zoom < 13 && (
+      {comparison.comparing && viewState.zoom < COLUMN_ZOOM_MIN && (
         <div className="absolute top-16 left-1/2 -translate-x-1/2 z-20 px-3 py-1.5 rounded-lg bg-purple-500/20 border border-purple-500/30 text-[11px] text-purple-300">
           Fark görünümü için yakınlaştırın
         </div>

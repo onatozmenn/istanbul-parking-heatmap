@@ -1,6 +1,5 @@
 import { X, Clock, Gauge } from "lucide-react";
 import type { BlockData, TimeSlot } from "../types";
-import { useBlockDetail } from "../hooks/useBlockDetail";
 import { occupancyToCss, occupancyLabel } from "../lib/colors";
 import { dayName, formatHour, formatOccupancy } from "../lib/format";
 import { getOccupancy, isEnforced, isEnforcedAt, getDataSource, getTimeSlotIndex } from "../lib/occupancy";
@@ -15,21 +14,15 @@ interface BlockDetailPanelProps {
 }
 
 export function BlockDetailPanel({ block, timeSlot, onClose, comparing, referenceSlot }: BlockDetailPanelProps) {
-  const { detail, loading } = useBlockDetail(
-    block?.id ?? null,
-    block?.meters ?? 0,
-    block?.street ?? "",
-  );
-
   if (!block) return null;
 
   const currentOcc = getOccupancy(block, timeSlot);
   const enforced = isEnforced(block, timeSlot);
   const source = getDataSource(block, timeSlot);
-  const slots = detail?.slots ?? block.slots;
+  const slots = block.slots;
 
   return (
-    <div className="absolute top-0 right-0 bottom-0 z-30 w-80 bg-gray-950/95 backdrop-blur-xl border-l border-gray-800/50 overflow-y-auto panel-slide-in">
+    <div className="absolute top-0 right-0 bottom-0 z-30 w-full sm:w-80 bg-gray-950/95 backdrop-blur-xl border-l border-gray-800/50 overflow-y-auto panel-slide-in" role="complementary" aria-label="Blok detayları">
       {/* Header */}
       <div className="sticky top-0 bg-gray-950/95 backdrop-blur-xl border-b border-gray-800/30 px-4 py-3 flex items-start justify-between">
         <div className="flex-1 min-w-0">
@@ -40,7 +33,7 @@ export function BlockDetailPanel({ block, timeSlot, onClose, comparing, referenc
         </div>
         <button
           onClick={onClose}
-          className="ml-2 p-1 rounded-lg hover:bg-gray-800 transition-colors"
+          className="ml-2 p-1 rounded-[9px] hover:bg-gray-800 transition-colors"
           aria-label="Close"
         >
           <X size={16} className="text-gray-400" />
@@ -107,7 +100,7 @@ export function BlockDetailPanel({ block, timeSlot, onClose, comparing, referenc
         <div className="flex items-center gap-2 mb-2">
           <Clock size={14} className="text-gray-400" />
           <span className="text-xs text-gray-400">
-            Haftalık Profil {loading && "(yükleniyor...)"}
+            Haftalık Profil
           </span>
         </div>
 
@@ -144,7 +137,7 @@ export function BlockDetailPanel({ block, timeSlot, onClose, comparing, referenc
                   return (
                     <div
                       key={dow}
-                      className="w-[9px] h-[9px] rounded-[1px]"
+                      className="w-[9px] h-[9px] rounded-[9px]"
                       style={{
                         backgroundColor:
                           !slotEnforced && occ <= 0
@@ -216,3 +209,7 @@ function BestWorstTimes({ slots }: { slots: number[] }) {
     </div>
   );
 }
+
+
+
+

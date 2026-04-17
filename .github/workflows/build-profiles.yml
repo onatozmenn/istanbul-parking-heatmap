@@ -1,0 +1,50 @@
+name: Haftalık Profil Güncelleme
+
+on:
+  schedule:
+    # Her Pazartesi 04:00 UTC (07:00 TR)
+    - cron: '0 4 * * 1'
+  workflow_dispatch:
+    inputs:
+      force:
+        description: 'Minimum gün kontrolünü atla'
+        required: false
+        default: 'false'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Python kurulumu
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Profilleri oluştur
+        run: |
+          FORCE_FLAG=""
+          if [ "${{ github.event.inputs.force }}" = "true" ]; then
+            FORCE_FLAG="--force"
+          fi
+          python scripts/build_profiles.py --min-days 7 $FORCE_FLAG
+
+      - name: Değişiklikleri commit & push et
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add public/data/
+          if git diff --cached --quiet; then
+            echo "Değişiklik yok, commit atlanıyor."
+          else
+            git commit -m "data: haftalık profiller güncellendi $(date -u +'%Y-%m-%d')"
+            git pull --rebase
+            git push
+          fi

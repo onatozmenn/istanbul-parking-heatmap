@@ -1,0 +1,43 @@
+name: Saatlik İSPARK Veri Toplama
+
+on:
+  schedule:
+    # Her saat başı çalışır (UTC). Türkiye UTC+3, yani 00:00 UTC = 03:00 TR
+    - cron: '0 * * * *'
+  workflow_dispatch: # Manuel tetikleme (Actions sekmesinden "Run workflow" butonuyla)
+
+jobs:
+  collect:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Python kurulumu
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: data klasörünü oluştur
+        run: mkdir -p data
+
+      - name: Veri topla
+        run: python scripts/collect_hourly.py
+
+      - name: Veritabanını commit & push et
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/ispark_history.db
+          if git diff --cached --quiet; then
+            echo "Değişiklik yok, commit atlanıyor."
+          else
+            git commit -m "data: saatlik İSPARK snapshot $(date -u +'%Y-%m-%d %H:%M UTC')"
+            git pull --rebase
+            git push
+          fi

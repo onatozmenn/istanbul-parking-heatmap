@@ -13,18 +13,18 @@ export function WeekHeatmap({ cityAverages, cityEnforcedFraction, timeSlot, onCe
   const averages = cityAverages;
 
   return (
-    <div className="absolute bottom-28 left-4 z-20 rounded-xl bg-gray-950/85 backdrop-blur-md border border-gray-800/50 p-3">
-      <p className="text-[10px] mb-1.5 font-medium uppercase tracking-wider text-gray-400">
+    <div className="absolute bottom-28 left-4 z-20 rounded-[9px] glass-panel p-4 hide-on-mobile compact-on-tablet panel-fade-up">
+      <p className="text-[10px] mb-2 font-medium tracking-widest text-white/30 uppercase">
         Haftalık Örüntü
       </p>
 
-      <div className="flex gap-px">
+      <div className="flex gap-[2px]">
         {/* Day labels */}
-        <div className="flex flex-col gap-px mr-1 justify-end">
+        <div className="flex flex-col gap-[2px] mr-1.5 justify-end">
           {Array.from({ length: 7 }, (_, dow) => (
             <div
               key={dow}
-              className="h-[10px] flex items-center text-[8px] text-gray-500 leading-none"
+              className="h-[11px] flex items-center text-[8px] text-white/25 leading-none font-medium"
             >
               {dayName(dow)}
             </div>
@@ -32,16 +32,16 @@ export function WeekHeatmap({ cityAverages, cityEnforcedFraction, timeSlot, onCe
         </div>
 
         {/* Hour columns */}
-        <div className="flex gap-px">
+        <div className="flex gap-[2px]">
           {Array.from({ length: 24 }, (_, hour) => (
-            <div key={hour} className="flex flex-col gap-px">
+            <div key={hour} className="flex flex-col gap-[2px]">
               {/* Hour label (show every 6 hours) */}
               {hour % 6 === 0 ? (
-                <div className="text-[7px] text-gray-600 text-center h-2.5 leading-none">
+                <div className="text-[7px] text-white/20 text-center h-3 leading-none font-medium tabular-nums">
                   {formatHour(hour).replace(" ", "")}
                 </div>
               ) : (
-                <div className="h-2.5" />
+                <div className="h-3" />
               )}
 
               {Array.from({ length: 7 }, (_, dow) => {
@@ -52,10 +52,10 @@ export function WeekHeatmap({ cityAverages, cityEnforcedFraction, timeSlot, onCe
                 const isSelected = dow === timeSlot.dow && hour === timeSlot.hour;
 
                 const bgColor = mostlyNotEnforced && val <= 0
-                    ? "rgba(59, 130, 246, 0.35)"
+                    ? "rgba(59, 130, 246, 0.3)"
                     : val > 0
                       ? occupancyToCss(val, !mostlyNotEnforced)
-                      : "rgba(255,255,255,0.04)";
+                      : "rgba(255,255,255,0.03)";
 
                 const titleText = `${dayName(dow)} ${formatHour(hour)}: ${formatOccupancy(val, !mostlyNotEnforced)}`;
 
@@ -63,12 +63,12 @@ export function WeekHeatmap({ cityAverages, cityEnforcedFraction, timeSlot, onCe
                   <button
                     key={dow}
                     onClick={() => onCellClick(dow, hour)}
-                    className="w-[10px] h-[10px] rounded-[2px] transition-all cursor-pointer hover:ring-1 hover:ring-white/30"
+                    className="w-[11px] h-[11px] rounded-[9px] transition-all duration-150 cursor-pointer hover:brightness-125 hover:scale-110"
                     style={{
                       backgroundColor: bgColor,
-                      opacity: val > 0 || mostlyNotEnforced ? 0.8 : 0.3,
-                      outline: isSelected ? "1.5px solid white" : "none",
-                      outlineOffset: "-0.5px",
+                      opacity: val > 0 || mostlyNotEnforced ? 0.85 : 0.25,
+                      outline: isSelected ? "2px solid rgba(255,255,255,0.9)" : "none",
+                      outlineOffset: "-1px",
                     }}
                     title={titleText}
                     aria-label={titleText}
@@ -82,3 +82,7 @@ export function WeekHeatmap({ cityAverages, cityEnforcedFraction, timeSlot, onCe
     </div>
   );
 }
+
+
+
+

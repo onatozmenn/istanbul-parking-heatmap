@@ -14,6 +14,7 @@ interface IsochroneControlProps {
   mode: TransportMode;
   maxMinutes: number;
   loading: boolean;
+  error?: string | null;
   snapDistance?: number | null;
   profileName?: string | null;
   onToggleActive: () => void;
@@ -29,6 +30,7 @@ export function IsochroneControl({
   mode,
   maxMinutes,
   loading,
+  error,
   snapDistance,
   profileName,
   onToggleActive,
@@ -44,7 +46,9 @@ export function IsochroneControl({
       {/* Toggle button */}
       <button
         onClick={onToggleActive}
-        className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+        aria-pressed={isActive}
+        aria-label="İzokron analizi aç/kapat"
+        className={`flex items-center gap-1.5 px-3 py-1.5 rounded-[9px] text-xs font-medium transition-all ${
           isActive
             ? "bg-indigo-500/30 text-indigo-300 border border-indigo-500/50 shadow-lg shadow-indigo-500/10"
             : "bg-gray-900/80 text-gray-400 border border-gray-700/50 hover:text-gray-200 hover:border-gray-600"
@@ -56,9 +60,9 @@ export function IsochroneControl({
 
       {/* Expanded panel */}
       {isActive && (
-        <div className="mt-2 rounded-xl bg-gray-950/90 backdrop-blur-md border border-gray-800/50 p-3 w-56 shadow-2xl panel-slide-in">
+        <div className="mt-2 rounded-[9px] glass-panel p-3 w-56 panel-slide-in">
           {/* Mode selector */}
-          <div className="flex gap-1 mb-3">
+          <div className="flex gap-1 mb-3" role="group" aria-label="Ulaşım modu">
             {MODES.map(({ key, icon: Icon, label }) => {
               const isSelected = mode === key;
               const modeColor = modeAccentCss(key);
@@ -66,7 +70,9 @@ export function IsochroneControl({
                 <button
                   key={key}
                   onClick={() => onModeChange(key)}
-                  className={`flex-1 flex flex-col items-center gap-0.5 py-1.5 rounded-lg text-[10px] border transition-all ${
+                  aria-pressed={isSelected}
+                  aria-label={`${label} modu`}
+                  className={`flex-1 flex flex-col items-center gap-0.5 py-1.5 rounded-[9px] text-[10px] border transition-all ${
                     isSelected
                       ? "border-opacity-50 bg-opacity-20 font-medium"
                       : "bg-gray-800/40 text-gray-500 border-gray-700/30 hover:text-gray-300"
@@ -101,7 +107,7 @@ export function IsochroneControl({
             {/* Gradient track behind the slider */}
             <div className="relative">
               <div
-                className="absolute inset-x-0 top-1/2 -translate-y-1/2 h-1.5 rounded-full"
+                className="absolute inset-x-0 top-1/2 -translate-y-1/2 h-1.5 rounded-[9px]"
                 style={{
                   background: `linear-gradient(to right, ${accent}, ${accent}30)`,
                 }}
@@ -113,6 +119,11 @@ export function IsochroneControl({
                 step={2}
                 value={maxMinutes}
                 onChange={(e) => onMaxMinutesChange(Number(e.target.value))}
+                aria-label="Yolculuk süresi"
+                aria-valuemin={2}
+                aria-valuemax={20}
+                aria-valuenow={maxMinutes}
+                aria-valuetext={`${maxMinutes} dakika`}
                 className="relative w-full h-4 appearance-none bg-transparent cursor-pointer
                   [&::-webkit-slider-thumb]:appearance-none
                   [&::-webkit-slider-thumb]:w-3.5
@@ -157,6 +168,16 @@ export function IsochroneControl({
             </p>
           )}
 
+          {error && !loading && (
+            <div className="rounded-[9px] bg-red-500/10 border border-red-500/30 px-2.5 py-2 mb-2">
+              <p className="text-[10px] text-red-400 font-medium mb-0.5">İzokron verisi yüklenemedi</p>
+              <p className="text-[9px] text-red-300/70">{error}</p>
+              <p className="text-[9px] text-gray-500 mt-1">
+                Valhalla docker servisini başlatıp izokron verisi oluşturmanız gerekiyor.
+              </p>
+            </div>
+          )}
+
           {!origin && !loading && (
             <div className="text-center py-1">
               <p className="text-[10px] text-gray-500">
@@ -169,7 +190,7 @@ export function IsochroneControl({
           )}
 
           {origin && (
-            <div className="flex items-center justify-between bg-gray-900/50 rounded-lg px-2 py-1.5">
+            <div className="flex items-center justify-between bg-gray-900/50 rounded-[9px] px-2 py-1.5">
               <div className="text-[10px]">
                 <span className="text-gray-400">
                   {origin.lat.toFixed(4)}, {origin.lng.toFixed(4)}
@@ -182,7 +203,8 @@ export function IsochroneControl({
               </div>
               <button
                 onClick={onClearOrigin}
-                className="p-0.5 rounded hover:bg-gray-800 text-gray-500 hover:text-gray-300 transition-colors"
+                className="p-0.5 rounded-[9px] hover:bg-gray-800 text-gray-500 hover:text-gray-300 transition-colors"
+                aria-label="Başlangıç noktasını temizle"
               >
                 <X size={12} />
               </button>
@@ -196,3 +218,7 @@ export function IsochroneControl({
     </div>
   );
 }
+
+
+
+

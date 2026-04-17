@@ -1,4 +1,4 @@
-import { Play, Pause, SkipForward } from "lucide-react";
+import { Play, Pause } from "lucide-react";
 import { dayName } from "../lib/format";
 import { formatHour, formatTimeSlot } from "../lib/format";
 import type { TimeSlot } from "../types";
@@ -35,26 +35,29 @@ export function TimeControl({
 }: TimeControlProps) {
   return (
     <div className="absolute bottom-0 left-0 right-0 z-20 pointer-events-none">
-      <div className="mx-auto max-w-3xl px-4 pb-4 pointer-events-auto">
-        <div className="rounded-2xl bg-gray-950/85 backdrop-blur-md border border-gray-800/50 px-4 py-3">
+      <div className="mx-auto max-w-2xl px-4 pb-4 pointer-events-auto">
+        <div className="rounded-[9px] glass-panel px-5 py-4 panel-fade-up">
           {/* Current time label + comparison control */}
-          <div className="flex items-center justify-center gap-3 mb-2">
-            <span className={`text-sm font-medium ${isPlaying ? "play-pulse" : ""}`}>
+          <div className="flex items-center justify-center gap-3 mb-3">
+            <span className={`text-[13px] font-medium text-white/90 tracking-wide ${isPlaying ? "play-pulse" : ""}`}>
               {formatTimeSlot(timeSlot.dow, timeSlot.hour)}
             </span>
             {children}
           </div>
 
           {/* Day pills */}
-          <div className="flex justify-center gap-1.5 mb-3">
+          <div className="flex justify-center gap-1 mb-4" role="tablist" aria-label="Haftanın günleri">
             {Array.from({ length: 7 }, (_, i) => (
               <button
                 key={i}
                 onClick={() => onDowChange(i)}
-                className={`px-3 py-1 rounded-full text-xs font-medium transition-all ${
+                role="tab"
+                aria-selected={i === timeSlot.dow}
+                aria-label={dayName(i)}
+                className={`px-3.5 py-1.5 rounded-[9px] text-[11px] font-medium transition-all duration-200 ${
                   i === timeSlot.dow
-                    ? "bg-blue-500 text-white shadow-lg shadow-blue-500/20"
-                    : "bg-gray-800/60 text-gray-400 hover:bg-gray-700/60 border border-gray-700/50"
+                    ? "bg-white text-gray-900 shadow-md shadow-white/10"
+                    : "text-white/40 hover:text-white/70 hover:bg-white/[0.06]"
                 }`}
               >
                 {dayName(i)}
@@ -63,14 +66,14 @@ export function TimeControl({
           </div>
 
           {/* Hour slider + playback */}
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-4">
             {/* Play/pause */}
             <button
               onClick={onTogglePlay}
-              className="flex-shrink-0 w-8 h-8 rounded-full bg-blue-500 hover:bg-blue-400 flex items-center justify-center transition-colors"
+              className="flex-shrink-0 w-9 h-9 rounded-[9px] bg-white/10 hover:bg-white/15 flex items-center justify-center transition-all duration-200 active:scale-95"
               aria-label={isPlaying ? "Pause" : "Play"}
             >
-              {isPlaying ? <Pause size={14} /> : <Play size={14} className="ml-0.5" />}
+              {isPlaying ? <Pause size={14} className="text-white" /> : <Play size={14} className="text-white ml-0.5" />}
             </button>
 
             {/* Hour slider */}
@@ -86,9 +89,9 @@ export function TimeControl({
                 aria-valuetext={formatHour(timeSlot.hour)}
               />
               {/* Tick labels */}
-              <div className="flex justify-between mt-0.5 px-0.5">
+              <div className="flex justify-between mt-1 px-0.5">
                 {HOUR_TICKS.map((h) => (
-                  <span key={h} className="text-[9px] text-gray-600">
+                  <span key={h} className="text-[10px] text-white/20 tabular-nums">
                     {formatHour(h)}
                   </span>
                 ))}
@@ -96,16 +99,17 @@ export function TimeControl({
             </div>
 
             {/* Speed selector */}
-            <div className="flex-shrink-0 flex items-center gap-1">
-              <SkipForward size={12} className="text-gray-500" />
+            <div className="flex-shrink-0 flex items-center gap-0.5 bg-white/[0.04] rounded-[9px] p-0.5" role="group" aria-label="Oynatma hızı">
               {SPEED_OPTIONS.map((opt) => (
                 <button
                   key={opt.value}
                   onClick={() => onSpeedChange(opt.value)}
-                  className={`text-[10px] px-1.5 py-0.5 rounded transition-colors ${
+                  aria-label={`Hız ${opt.label}`}
+                  aria-pressed={speed === opt.value}
+                  className={`text-[10px] px-2 py-1 rounded-[9px] transition-all duration-200 ${
                     speed === opt.value
-                      ? "bg-gray-700 text-white"
-                      : "text-gray-500 hover:text-gray-300"
+                      ? "bg-white/15 text-white font-medium"
+                      : "text-white/30 hover:text-white/60"
                   }`}
                 >
                   {opt.label}
@@ -118,3 +122,7 @@ export function TimeControl({
     </div>
   );
 }
+
+
+
+

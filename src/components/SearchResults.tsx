@@ -13,14 +13,14 @@ interface SearchResultsProps {
 export function SearchResults({ blocks, timeSlot, onBlockClick }: SearchResultsProps) {
   if (blocks.length === 0) {
     return (
-      <div className="absolute top-20 left-4 z-20 w-64 rounded-xl bg-gray-950/90 backdrop-blur-md border border-gray-800/50 px-3 py-3">
+      <div className="absolute top-20 left-4 z-20 w-64 rounded-[9px] glass-panel px-3 py-3">
         <p className="text-xs text-gray-500 text-center">Bu alanda blok bulunamadı</p>
       </div>
     );
   }
 
   return (
-    <div className="absolute top-20 left-4 z-20 w-64 max-h-[60vh] rounded-xl bg-gray-950/90 backdrop-blur-md border border-gray-800/50 overflow-hidden panel-slide-in">
+    <div className="absolute top-20 left-4 z-20 w-64 max-h-[60vh] rounded-[9px] glass-panel overflow-hidden panel-slide-in">
       <div className="px-3 py-2 border-b border-gray-800/30">
         <p className="text-[10px] text-gray-400 font-medium uppercase tracking-wider">
           {blocks.length} Yakın Blok
@@ -64,3 +64,7 @@ export function SearchResults({ blocks, timeSlot, onBlockClick }: SearchResultsP
     </div>
   );
 }
+
+
+
+

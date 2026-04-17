@@ -1,6 +1,6 @@
 /** Photon geocoder wrapper with İstanbul bounding box */
 
-const PHOTON_URL = "https://photon.komoot.io/api";
+const PHOTON_URL = import.meta.env.VITE_GEOCODE_URL || "https://photon.komoot.io/api";
 const IST_BBOX = { west: 28.5, south: 40.8, east: 29.5, north: 41.3 };
 
 export interface GeoResult {

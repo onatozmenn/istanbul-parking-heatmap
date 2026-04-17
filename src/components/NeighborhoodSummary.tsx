@@ -53,9 +53,9 @@ export function NeighborhoodSummary({ blocks, timeSlot }: NeighborhoodSummaryPro
   if (hoods.length === 0) {
     if (mostlyNotEnforced) {
       return (
-        <div className="absolute top-16 right-4 z-20 rounded-xl bg-gray-950/80 backdrop-blur-md border border-gray-800/50 p-3 w-56">
+        <div className="absolute top-16 right-4 z-20 rounded-[9px] glass-panel p-4 w-56 hide-on-mobile panel-fade-up">
           <p className="text-xs text-blue-400 font-medium">Sayaçlar Kapalı</p>
-          <p className="text-[10px] text-gray-500 mt-1">
+          <p className="text-[10px] text-white/30 mt-1">
             Sayaçların kapalı olduğu saatlerde ücretsiz park
           </p>
         </div>
@@ -72,19 +72,21 @@ export function NeighborhoodSummary({ blocks, timeSlot }: NeighborhoodSummaryPro
     .slice(0, 3);
 
   return (
-    <div className="absolute top-16 right-4 z-20 rounded-xl bg-gray-950/80 backdrop-blur-md border border-gray-800/50 p-3 w-56">
-      <div className="mb-2">
-        <div className="flex items-center gap-1.5 mb-1">
-          <TrendingUp size={12} className="text-red-400" />
-          <span className="text-[10px] text-gray-400 font-medium uppercase tracking-wider">
+    <div className="absolute top-16 right-4 z-20 rounded-[9px] glass-panel p-4 w-56 hide-on-mobile panel-fade-up">
+      <div className="mb-3">
+        <div className="flex items-center gap-2 mb-2">
+          <div className="w-5 h-5 rounded-[9px] bg-red-500/15 flex items-center justify-center">
+            <TrendingUp size={11} className="text-red-400" />
+          </div>
+          <span className="text-[10px] text-white/35 font-medium tracking-widest uppercase">
             En Yoğun
           </span>
         </div>
         {busiest.map((h) => (
-          <div key={h.name} className="flex justify-between items-center py-0.5">
-            <span className="text-xs text-gray-300 truncate mr-2">{h.name}</span>
+          <div key={h.name} className="flex justify-between items-center py-1">
+            <span className="text-[12px] text-white/70 truncate mr-2">{h.name}</span>
             <span
-              className="text-xs font-medium flex-shrink-0"
+              className="text-[12px] font-medium flex-shrink-0 tabular-nums"
               style={{ color: occupancyToCss(h.avgOcc) }}
             >
               {formatOccupancy(h.avgOcc)}
@@ -93,18 +95,20 @@ export function NeighborhoodSummary({ blocks, timeSlot }: NeighborhoodSummaryPro
         ))}
       </div>
 
-      <div>
-        <div className="flex items-center gap-1.5 mb-1">
-          <TrendingDown size={12} className="text-green-400" />
-          <span className="text-[10px] text-gray-400 font-medium uppercase tracking-wider">
+      <div className="pt-3 border-t border-white/[0.05]">
+        <div className="flex items-center gap-2 mb-2">
+          <div className="w-5 h-5 rounded-[9px] bg-green-500/15 flex items-center justify-center">
+            <TrendingDown size={11} className="text-green-400" />
+          </div>
+          <span className="text-[10px] text-white/35 font-medium tracking-widest uppercase">
             En Müsait
           </span>
         </div>
         {emptiest.map((h) => (
-          <div key={h.name} className="flex justify-between items-center py-0.5">
-            <span className="text-xs text-gray-300 truncate mr-2">{h.name}</span>
+          <div key={h.name} className="flex justify-between items-center py-1">
+            <span className="text-[12px] text-white/70 truncate mr-2">{h.name}</span>
             <span
-              className="text-xs font-medium flex-shrink-0"
+              className="text-[12px] font-medium flex-shrink-0 tabular-nums"
               style={{ color: occupancyToCss(h.avgOcc) }}
             >
               {formatOccupancy(h.avgOcc)}
@@ -115,3 +119,7 @@ export function NeighborhoodSummary({ blocks, timeSlot }: NeighborhoodSummaryPro
     </div>
   );
 }
+
+
+
+

@@ -21,7 +21,7 @@ export function ComparisonControl({
     <div className="flex items-center gap-2">
       <button
         onClick={onPin}
-        className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs transition-all ${
+        className={`flex items-center gap-1.5 px-2.5 py-1 rounded-[9px] text-xs transition-all ${
           comparing
             ? "bg-purple-500/80 text-white"
             : "bg-gray-800/60 text-gray-400 hover:bg-gray-700/60 border border-gray-700/50"
@@ -39,7 +39,7 @@ export function ComparisonControl({
           </span>
           <button
             onClick={onExit}
-            className="p-0.5 rounded hover:bg-gray-800 transition-colors"
+            className="p-0.5 rounded-[9px] hover:bg-gray-800 transition-colors"
             title="Karşılaştırmadan çık"
           >
             <X size={12} className="text-gray-400" />
@@ -49,3 +49,7 @@ export function ComparisonControl({
     </div>
   );
 }
+
+
+
+

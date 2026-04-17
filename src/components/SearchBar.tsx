@@ -26,26 +26,32 @@ export function SearchBar({
   onRadiusChange,
 }: SearchBarProps) {
   return (
-    <div className="absolute top-4 left-1/2 -translate-x-1/2 z-30 w-80">
+    <div className="absolute top-4 left-1/2 -translate-x-1/2 z-30 w-72 sm:w-80">
       {/* Search input */}
       <div className="relative">
-        <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+        <Search size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-white/25" />
         <input
           type="text"
           value={query}
           onChange={(e) => onQueryChange(e.target.value)}
-          placeholder="İstanbul adres ara..."
-          className="w-full pl-9 pr-8 py-2 rounded-xl bg-gray-950/85 backdrop-blur-md border border-gray-800/50 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-blue-500/50 transition-colors"
+          placeholder="Konum veya adres ara..."
+          className="w-full pl-10 pr-9 py-2.5 rounded-[9px] glass-panel text-[13px] text-white placeholder-white/25 focus:outline-none focus:ring-1 focus:ring-white/10 transition-all"
+          role="combobox"
+          aria-label="Adres arama"
+          aria-expanded={results.length > 0 && !hasSelection}
+          aria-autocomplete="list"
+          aria-controls="search-results-list"
         />
         {(query || hasSelection) && (
           <button
             onClick={onClear}
-            className="absolute right-2.5 top-1/2 -translate-y-1/2 p-0.5 rounded hover:bg-gray-800 transition-colors"
+            className="absolute right-3 top-1/2 -translate-y-1/2 p-1 rounded-[9px] hover:bg-white/10 transition-colors"
+            aria-label="Aramayı temizle"
           >
             {isSearching ? (
-              <Loader2 size={14} className="text-gray-400 animate-spin" />
+              <Loader2 size={14} className="text-white/40 animate-spin" />
             ) : (
-              <X size={14} className="text-gray-400" />
+              <X size={14} className="text-white/30" />
             )}
           </button>
         )}
@@ -53,15 +59,16 @@ export function SearchBar({
 
       {/* Autocomplete dropdown */}
       {results.length > 0 && !hasSelection && (
-        <div className="mt-1 rounded-xl bg-gray-950/95 backdrop-blur-md border border-gray-800/50 overflow-hidden">
+        <div id="search-results-list" role="listbox" aria-label="Arama sonuçları" className="mt-1.5 rounded-[9px] glass-panel overflow-hidden panel-fade-up">
           {results.map((r, i) => (
             <button
               key={i}
               onClick={() => onSelectResult(r)}
-              className="w-full text-left px-3 py-2 text-sm hover:bg-gray-800/60 transition-colors border-b border-gray-800/30 last:border-0"
+              role="option"
+              className="w-full text-left px-4 py-2.5 text-[13px] hover:bg-white/[0.06] transition-colors border-b border-white/[0.04] last:border-0"
             >
-              <span className="text-white">{r.name}</span>
-              <span className="text-[10px] text-gray-500 ml-2">{r.type}</span>
+              <span className="text-white/80">{r.name}</span>
+              <span className="text-[10px] text-white/25 ml-2">{r.type}</span>
             </button>
           ))}
         </div>
@@ -69,16 +76,16 @@ export function SearchBar({
 
       {/* Radius selector (shown when a result is selected) */}
       {hasSelection && (
-        <div className="mt-1.5 flex items-center justify-center gap-1">
-          <span className="text-[10px] text-gray-400 mr-1">Yarıçap:</span>
+        <div className="mt-2 flex items-center justify-center gap-1.5">
+          <span className="text-[10px] text-white/30 mr-1">Yarıçap</span>
           {RADIUS_OPTIONS.map((r) => (
             <button
               key={r}
               onClick={() => onRadiusChange(r)}
-              className={`text-[10px] px-2 py-0.5 rounded-full transition-colors ${
+              className={`text-[10px] px-2.5 py-1 rounded-[9px] transition-all duration-200 ${
                 radius === r
-                  ? "bg-blue-500/80 text-white"
-                  : "bg-gray-800/60 text-gray-400 hover:bg-gray-700/60"
+                  ? "bg-white/15 text-white font-medium"
+                  : "text-white/30 hover:text-white/60 hover:bg-white/[0.06]"
               }`}
             >
               {r}m
@@ -89,3 +96,7 @@ export function SearchBar({
     </div>
   );
 }
+
+
+
+

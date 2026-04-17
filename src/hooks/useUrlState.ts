@@ -113,53 +113,79 @@ export interface UrlStateInitial {
 
 }
 
+/** Clamp a number between min and max */
+function clamp(value: number, min: number, max: number): number {
+  return Math.max(min, Math.min(max, value));
+}
+
+/** Validate a number is finite and within optional range */
+function validNum(v: number | null | undefined, min?: number, max?: number): number | undefined {
+  if (v === undefined || v === null || !Number.isFinite(v)) return undefined;
+  if (min !== undefined && max !== undefined) return clamp(v, min, max);
+  return v;
+}
+
 /** Parse initial state from URL on mount */
 export function getInitialUrlState(): UrlStateInitial {
   const p = parseHash();
   const result: UrlStateInitial = {};
 
-  if (p.dow != null && p.hour != null && !isNaN(p.dow) && !isNaN(p.hour)) {
-    result.timeSlot = { dow: p.dow, hour: p.hour };
+  const dow = validNum(p.dow, 0, 6);
+  const hour = validNum(p.hour, 0, 23);
+  if (dow !== undefined && hour !== undefined) {
+    result.timeSlot = { dow, hour };
   }
 
-  if (p.lat != null && p.lng != null && p.z != null && !isNaN(p.lat) && !isNaN(p.lng) && !isNaN(p.z)) {
+  const lat = validNum(p.lat, -90, 90);
+  const lng = validNum(p.lng, -180, 180);
+  const z = validNum(p.z, 0, 22);
+  if (lat !== undefined && lng !== undefined && z !== undefined) {
     const vs: Partial<MapViewState> = {
-      latitude: p.lat,
-      longitude: p.lng,
-      zoom: p.z,
+      latitude: lat,
+      longitude: lng,
+      zoom: z,
     };
-    if (p.p != null && !isNaN(p.p)) vs.pitch = p.p;
-    if (p.b != null && !isNaN(p.b)) vs.bearing = p.b;
+    const pitch = validNum(p.p, 0, 85);
+    if (pitch !== undefined) vs.pitch = pitch;
+    const bearing = validNum(p.b, -180, 180);
+    if (bearing !== undefined) vs.bearing = bearing;
     result.viewState = vs;
   }
 
-  if (p.block) result.blockId = p.block;
+  if (p.block && typeof p.block === "string" && p.block.length <= 200) {
+    result.blockId = p.block;
+  }
 
-  if (p.slat != null && p.slng != null && !isNaN(p.slat) && !isNaN(p.slng)) {
-    result.searchLat = p.slat;
-    result.searchLng = p.slng;
-    result.searchRadius = p.sr ?? 400;
+  const slat = validNum(p.slat, -90, 90);
+  const slng = validNum(p.slng, -180, 180);
+  if (slat !== undefined && slng !== undefined) {
+    result.searchLat = slat;
+    result.searchLng = slng;
+    const sr = validNum(p.sr, 100, 2000);
+    result.searchRadius = sr ?? 400;
   }
 
   if (p.cmp === 1) {
     result.comparing = true;
-    result.refDow = p.rdow ?? null;
-    result.refHour = p.rhour ?? null;
+    result.refDow = validNum(p.rdow, 0, 6) ?? null;
+    result.refHour = validNum(p.rhour, 0, 23) ?? null;
   }
 
   if (p.iso === 1) {
     result.isoActive = true;
-    result.isoMode = p.imode ?? "driving";
-    if (p.ilat != null && p.ilng != null && !isNaN(p.ilat) && !isNaN(p.ilng)) {
-      result.isoLat = p.ilat;
-      result.isoLng = p.ilng;
+    const validModes = ["driving", "cycling", "walking"];
+    result.isoMode = validModes.includes(p.imode ?? "") ? p.imode! : "driving";
+    const ilat = validNum(p.ilat, -90, 90);
+    const ilng = validNum(p.ilng, -180, 180);
+    if (ilat !== undefined && ilng !== undefined) {
+      result.isoLat = ilat;
+      result.isoLng = ilng;
     }
-    if (p.imax != null && !isNaN(p.imax)) {
-      result.isoMaxMinutes = p.imax;
+    const imax = validNum(p.imax, 2, 20);
+    if (imax !== undefined) {
+      result.isoMaxMinutes = imax;
     }
   }
-
-
 
   return result;
 }

@@ -9,7 +9,12 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "fetch-data": "python3 scripts/fetch_ispark_data.py",
-    "pipeline": "python3 scripts/fetch_ispark_data.py"
+    "pipeline": "python3 scripts/fetch_ispark_data.py",
+    "collect": "python3 scripts/collect_hourly.py",
+    "build-profiles": "python3 scripts/build_profiles.py",
+    "build-profiles:force": "python3 scripts/build_profiles.py --force",
+    "test": "vitest run",
+    "test:watch": "vitest"
   },
   "dependencies": {
     "@deck.gl/aggregation-layers": "^9.2.11",
@@ -34,6 +39,7 @@
     "tailwindcss": "^4.2.1",
     "typescript": "~5.9.3",
     "typescript-eslint": "^8.48.0",
-    "vite": "^7.3.2"
+    "vite": "^7.3.2",
+    "vitest": "^4.1.4"
   }
 }

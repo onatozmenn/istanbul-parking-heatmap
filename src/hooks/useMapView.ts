@@ -1,32 +1,22 @@
 import { useState, useCallback, useRef } from "react";
 import { FlyToInterpolator } from "deck.gl";
 import type { MapViewState } from "deck.gl";
+import { DEFAULT_CENTER, DEFAULT_ZOOM, COLUMN_TIER_PITCH, getZoomTier } from "../lib/constants";
+import type { ZoomTier } from "../lib/constants";
 
 const DEFAULT_VIEW: MapViewState = {
-  longitude: 28.9784,
-  latitude: 41.0082,
-  zoom: 12,
+  longitude: DEFAULT_CENTER.longitude,
+  latitude: DEFAULT_CENTER.latitude,
+  zoom: DEFAULT_ZOOM,
   pitch: 0,
   bearing: 0,
 };
-
-// Zoom tier boundaries (matching ParkingMap)
-const COLUMN_ZOOM_MIN = 13;
-const SCATTER_ZOOM_MIN = 15.5;
-
-type ZoomTier = "heatmap" | "columns" | "scatter";
-
-function getZoomTier(zoom: number): ZoomTier {
-  if (zoom >= SCATTER_ZOOM_MIN) return "scatter";
-  if (zoom >= COLUMN_ZOOM_MIN) return "columns";
-  return "heatmap";
-}
 
 export function useMapView(initialOverrides?: Partial<MapViewState>) {
   const initialZoom = initialOverrides?.zoom ?? DEFAULT_VIEW.zoom;
   const initialPitch =
     initialOverrides?.pitch ??
-    (getZoomTier(initialZoom) !== "heatmap" ? 45 : 0);
+    (getZoomTier(initialZoom) !== "heatmap" ? COLUMN_TIER_PITCH : 0);
 
   const [viewState, setViewState] = useState<MapViewState>({
     ...DEFAULT_VIEW,
@@ -56,7 +46,7 @@ export function useMapView(initialOverrides?: Partial<MapViewState>) {
 
     // Auto-pitch when entering column tier from heatmap
     if (newTier === "columns" && prevTier === "heatmap" && !userPitchRef.current) {
-      vs = { ...vs, pitch: 45 };
+      vs = { ...vs, pitch: COLUMN_TIER_PITCH };
     }
     // Reset pitch when leaving column tier to heatmap
     if (newTier === "heatmap" && prevTier === "columns") {

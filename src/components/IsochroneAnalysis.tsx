@@ -105,10 +105,10 @@ export function IsochroneAnalysis({
       {/* Availability bar */}
       {withData > 0 && (
         <div className="mb-2">
-          <div className="flex h-1.5 rounded-full overflow-hidden gap-px">
+          <div className="flex h-1.5 rounded-[9px] overflow-hidden gap-px">
             {tiers.available > 0 && (
               <div
-                className="rounded-full"
+                className="rounded-[9px]"
                 style={{
                   width: `${(tiers.available / withData) * 100}%`,
                   backgroundColor: "rgb(34, 197, 94)",
@@ -117,7 +117,7 @@ export function IsochroneAnalysis({
             )}
             {tiers.moderate > 0 && (
               <div
-                className="rounded-full"
+                className="rounded-[9px]"
                 style={{
                   width: `${(tiers.moderate / withData) * 100}%`,
                   backgroundColor: "rgb(234, 179, 8)",
@@ -126,7 +126,7 @@ export function IsochroneAnalysis({
             )}
             {tiers.difficult > 0 && (
               <div
-                className="rounded-full"
+                className="rounded-[9px]"
                 style={{
                   width: `${(tiers.difficult / withData) * 100}%`,
                   backgroundColor: "rgb(239, 68, 68)",
@@ -164,7 +164,7 @@ export function IsochroneAnalysis({
             {nearby.map((r) => (
               <div
                 key={r.block.id}
-                className="flex items-center justify-between text-[10px] px-1.5 py-0.5 rounded bg-gray-900/40"
+                className="flex items-center justify-between text-[10px] px-1.5 py-0.5 rounded-[9px] bg-gray-900/40"
               >
                 <span className="text-gray-400 truncate mr-2">
                   {r.block.street}
@@ -183,3 +183,7 @@ export function IsochroneAnalysis({
     </div>
   );
 }
+
+
+
+
