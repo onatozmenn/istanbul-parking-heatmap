@@ -1,4 +1,4 @@
-import { ColumnLayer } from "deck.gl";
+import { ColumnLayer } from "@deck.gl/layers";
 import type { BlockData, TimeSlot } from "../types";
 import { deltaToColor } from "../lib/deltaColors";
 import { getTimeSlotIndex } from "../lib/occupancy";
@@ -40,10 +40,6 @@ export function createParkingDeltaColumnLayer(
     pickable: true,
     autoHighlight: true,
     highlightColor: [255, 255, 255, 60],
-    transitions: {
-      getElevation: 300,
-      getFillColor: 300,
-    },
     updateTriggers: {
       getFillColor: [curIdx, refIdx],
       getElevation: [curIdx, refIdx],

@@ -23,28 +23,28 @@ export function BlockDetailPanel({ block, timeSlot, onClose, comparing, referenc
 
   return (
     <div
-      className="panel-slide-in absolute inset-x-0 bottom-0 top-[24svh] z-30 overflow-y-auto rounded-t-[28px] border-t border-white/[0.08] bg-gray-950/95 pb-[calc(env(safe-area-inset-bottom,0px)+1.25rem)] backdrop-blur-xl sm:inset-y-0 sm:right-0 sm:left-auto sm:w-80 sm:rounded-none sm:border-l sm:border-t-0 sm:border-gray-800/50 sm:pb-0"
+      className="panel-slide-in absolute inset-x-0 bottom-0 top-[24svh] z-30 overflow-y-auto rounded-t-[20px] border-t border-white/[0.08] bg-gray-950/95 pb-[calc(env(safe-area-inset-bottom,0px)+1.25rem)] backdrop-blur-xl lg:inset-y-0 lg:left-auto lg:right-0 lg:w-80 lg:rounded-none lg:border-l lg:border-t-0 lg:border-gray-800/50 lg:pb-0"
       role="complementary"
       aria-label="Blok detayları"
     >
-      <div className="sticky top-0 z-10 border-b border-gray-800/30 bg-[rgba(3,7,18,0.92)] px-4 pb-3 pt-2 backdrop-blur-xl sm:pt-3">
-        <div className="mx-auto mb-2 h-1 w-11 rounded-full bg-white/[0.14] sm:hidden" />
+      <div className="sticky top-0 z-10 border-b border-gray-800/30 bg-[rgba(3,7,18,0.92)] px-4 pb-3 pt-2 backdrop-blur-xl lg:pt-3">
+        <div className="mx-auto mb-2 h-1 w-11 rounded-full bg-white/[0.14] lg:hidden" />
 
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0 flex-1">
             <p className="text-[10px] font-medium uppercase tracking-[0.22em] text-white/[0.28]">
               Seçili blok
             </p>
-            <h2 className="mt-1 truncate text-base font-semibold text-white sm:text-sm">{block.id}</h2>
+            <h2 className="mt-1 truncate text-base font-semibold text-white lg:text-sm">{block.id}</h2>
             {block.street && (
-              <p className="mt-1 truncate text-[12px] text-gray-400 sm:text-xs">{block.street}</p>
+              <p className="mt-1 truncate text-[12px] text-gray-400 lg:text-xs">{block.street}</p>
             )}
           </div>
 
           <button
             onClick={onClose}
-            className="rounded-full p-2 transition-colors hover:bg-white/[0.08] sm:rounded-[9px] sm:p-1"
-            aria-label="Close"
+            className="rounded-full p-2 transition-colors hover:bg-white/[0.08] lg:rounded-[9px] lg:p-1"
+            aria-label="Detay panelini kapat"
           >
             <X size={16} className="text-gray-400" />
           </button>
@@ -73,7 +73,7 @@ export function BlockDetailPanel({ block, timeSlot, onClose, comparing, referenc
         </p>
 
         {source === "pressure" && (
-          <p className="mt-1 text-[10px] text-gray-600">Değerler park şikayetlerinden tahmin edildi.</p>
+          <p className="mt-1 text-[10px] text-gray-600">Değer geçmiş doluluk profilinden tahmin edildi.</p>
         )}
 
         {comparing && referenceSlot && (() => {

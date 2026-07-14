@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect, useRef } from "react";
+import { startTransition, useState, useCallback, useEffect, useRef } from "react";
 import type { TimeSlot } from "../types";
 
 const DEFAULT_SPEED = 125; // ms per step (4x)
@@ -9,7 +9,7 @@ export function useTimeSlot(initialSlot?: TimeSlot) {
   );
   const [isPlaying, setIsPlaying] = useState(false);
   const [speed, setSpeed] = useState(DEFAULT_SPEED);
-  const intervalRef = useRef<number | null>(null);
+  const animationFrameRef = useRef<number | null>(null);
 
   const setDow = useCallback((dow: number) => {
     setTimeSlot((prev) => ({ ...prev, dow }));
@@ -39,17 +39,25 @@ export function useTimeSlot(initialSlot?: TimeSlot) {
     setIsPlaying((prev) => !prev);
   }, []);
 
-  // Playback interval
+  // Align playback with browser paint and drop intermediate steps on slow devices.
   useEffect(() => {
-    if (isPlaying) {
-      intervalRef.current = window.setInterval(advance, speed);
-    } else if (intervalRef.current !== null) {
-      clearInterval(intervalRef.current);
-      intervalRef.current = null;
-    }
+    if (!isPlaying) return;
+
+    let lastAdvance = performance.now();
+    const tick = (now: number) => {
+      if (now - lastAdvance >= speed) {
+        lastAdvance = now;
+        startTransition(advance);
+      }
+      animationFrameRef.current = window.requestAnimationFrame(tick);
+    };
+
+    animationFrameRef.current = window.requestAnimationFrame(tick);
+
     return () => {
-      if (intervalRef.current !== null) {
-        clearInterval(intervalRef.current);
+      if (animationFrameRef.current !== null) {
+        window.cancelAnimationFrame(animationFrameRef.current);
+        animationFrameRef.current = null;
       }
     };
   }, [isPlaying, speed, advance]);

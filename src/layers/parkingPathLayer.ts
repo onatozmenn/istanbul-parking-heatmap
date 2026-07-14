@@ -1,5 +1,5 @@
-import { PathLayer } from "deck.gl";
-import type { Layer } from "deck.gl";
+import { PathLayer } from "@deck.gl/layers";
+import type { Layer } from "@deck.gl/core";
 import type { BlockData, TimeSlot } from "../types";
 import { occupancyToColor } from "../lib/colors";
 import { getTimeSlotIndex, isEnforcedAt } from "../lib/occupancy";

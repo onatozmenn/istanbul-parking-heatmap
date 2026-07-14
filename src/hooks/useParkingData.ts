@@ -78,8 +78,7 @@ export function useParkingData() {
   const neighborhoods = useMemo(() => {
     const set = new Set<string>();
     for (const block of state.blocks) {
-      // Extract neighborhood from street name if available
-      if (block.street) set.add(block.street);
+      if (block.hood) set.add(block.hood);
     }
     return Array.from(set).sort();
   }, [state.blocks]);

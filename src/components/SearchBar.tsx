@@ -26,14 +26,14 @@ export function SearchBar({
   onRadiusChange,
 }: SearchBarProps) {
   return (
-    <div className="absolute left-3 right-3 top-[calc(env(safe-area-inset-top,0px)+4.25rem)] z-30 sm:left-1/2 sm:right-auto sm:top-4 sm:w-[28rem] sm:-translate-x-1/2 lg:w-[31rem]">
+    <div className="pointer-events-auto min-w-0 w-full">
       <div className="relative transition-all duration-200 ease-out active:scale-[0.985] focus-within:-translate-y-0.5 focus-within:scale-[1.01]">
         <input
           type="text"
           value={query}
           onChange={(e) => onQueryChange(e.target.value)}
           placeholder="Konum veya adres ara..."
-          className="min-h-[3.5rem] w-full rounded-[20px] border border-white/[0.06] bg-[rgba(15,15,25,0.88)] pl-10 pr-10 py-4 text-[15px] text-white placeholder:text-white/28 shadow-none backdrop-blur-[20px] transition-all duration-200 focus:border-white/10 focus:outline-none focus:ring-1 focus:ring-white/8 focus:shadow-none sm:min-h-[3.4rem] sm:rounded-[12px] sm:pl-11 sm:pr-11 sm:py-3.5 sm:text-[15px]"
+          className="min-h-12 w-full rounded-lg border border-white/[0.07] bg-[rgba(15,15,25,0.9)] px-4 py-3 text-[14px] text-white placeholder:text-white/30 shadow-none backdrop-blur-[20px] transition-all duration-200 focus:border-white/15 focus:outline-none focus:ring-1 focus:ring-white/10 lg:min-h-[3.75rem] lg:px-5 lg:text-[15px]"
           role="combobox"
           aria-label="Adres arama"
           aria-expanded={results.length > 0 && !hasSelection}

@@ -1,4 +1,4 @@
-import { HeatmapLayer } from "deck.gl";
+import { HeatmapLayer } from "@deck.gl/aggregation-layers";
 import type { BlockData, TimeSlot } from "../types";
 import { getTimeSlotIndex } from "../lib/occupancy";
 

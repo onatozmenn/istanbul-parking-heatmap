@@ -23,7 +23,7 @@ import os
 import random
 import sqlite3
 import sys
-from datetime import datetime
+from datetime import datetime, timezone
 
 random.seed(42)
 
@@ -32,7 +32,20 @@ DB_PATH = os.path.join(DB_DIR, "ispark_history.db")
 OUT_DIR = os.path.join(os.path.dirname(__file__), "..", "public", "data")
 
 
-def check_db():
+def turkish_title(value: str) -> str:
+    """Büyük harfli Türkçe yer adını başlık biçimine çevir."""
+    lowered = value.translate(str.maketrans({"I": "ı", "İ": "i"})).lower()
+
+    def capitalize_word(word: str) -> str:
+        if not word:
+            return word
+        first = {"i": "İ", "ı": "I"}.get(word[0], word[0].upper())
+        return first + word[1:]
+
+    return " ".join(capitalize_word(word) for word in lowered.split())
+
+
+def check_db(max_age_hours: int | None = None):
     """Veritabanı ve yeterli veri var mı kontrol et."""
     if not os.path.exists(DB_PATH):
         print(f"HATA: Veritabanı bulunamadı: {DB_PATH}")
@@ -40,6 +53,12 @@ def check_db():
         sys.exit(1)
 
     conn = sqlite3.connect(DB_PATH)
+    integrity = conn.execute("PRAGMA quick_check").fetchone()[0]
+    if integrity != "ok":
+        print(f"HATA: SQLite bütünlük kontrolü başarısız: {integrity}")
+        conn.close()
+        sys.exit(1)
+
     total = conn.execute("SELECT COUNT(*) FROM snapshots").fetchone()[0]
     if total == 0:
         print("HATA: Veritabanında hiç snapshot yok.")
@@ -51,14 +70,28 @@ def check_db():
     parks = conn.execute("SELECT COUNT(*) FROM parks").fetchone()[0]
     conn.close()
 
-    days = (datetime.fromisoformat(last) - datetime.fromisoformat(first)).days
+    first_dt = datetime.fromisoformat(first)
+    last_dt = datetime.fromisoformat(last)
+    days = (last_dt - first_dt).days
+    age_hours = (
+        datetime.now(timezone.utc).replace(tzinfo=None) - last_dt
+    ).total_seconds() / 3600
+
+    if max_age_hours is not None and age_hours > max_age_hours:
+        print(
+            f"HATA: Son snapshot {age_hours:.1f} saat önce alınmış; "
+            f"izin verilen en fazla {max_age_hours} saat."
+        )
+        sys.exit(1)
+
     print(f"Veritabanı: {total} snapshot, {parks} otopark, {days} gün kapsam")
     print(f"  İlk: {first}")
     print(f"  Son: {last}")
+    print(f"  Veri yaşı: {age_hours:.1f} saat")
     return days
 
 
-def compute_profiles(min_days: int):
+def compute_profiles():
     """Tüm otoparklar için 168 slotluk gerçek ortalama profiller hesapla."""
     conn = sqlite3.connect(DB_PATH)
 
@@ -80,12 +113,18 @@ def compute_profiles(min_days: int):
     # Her park için (dow, hour) bazında ortalama doluluk
     # Query: readings JOIN snapshots → group by park_id, dow, hour
     query = """
+        WITH localized_snapshots AS (
+            SELECT id,
+                   (CAST(strftime('%w', datetime(ts, '+3 hours')) AS INTEGER) + 6) % 7 AS dow,
+                   CAST(strftime('%H', datetime(ts, '+3 hours')) AS INTEGER) AS hour
+            FROM snapshots
+        )
         SELECT r.park_id, s.dow, s.hour,
                AVG(r.occupancy) as avg_occ,
                COUNT(*) as sample_count,
                AVG(r.is_open) as open_ratio
         FROM readings r
-        JOIN snapshots s ON r.snapshot_id = s.id
+        JOIN localized_snapshots s ON r.snapshot_id = s.id
         GROUP BY r.park_id, s.dow, s.hour
         ORDER BY r.park_id, s.dow, s.hour
     """
@@ -102,6 +141,17 @@ def compute_profiles(min_days: int):
             "open_ratio": open_ratio,
         }
 
+    latest_capacities = dict(conn.execute("""
+        SELECT readings.park_id, readings.capacity
+        FROM readings
+        JOIN (
+            SELECT park_id, MAX(snapshot_id) AS snapshot_id
+            FROM readings
+            GROUP BY park_id
+        ) latest
+          ON readings.park_id = latest.park_id
+         AND readings.snapshot_id = latest.snapshot_id
+    """))
     conn.close()
 
     print(f"  {len(profiles)} otopark için veri var")
@@ -127,26 +177,24 @@ def compute_profiles(min_days: int):
                 if key in profile_data:
                     entry = profile_data[key]
                     occ = max(0.0, min(1.0, entry["occ"]))
-                    is_enforced = 1 if entry["open_ratio"] > 0.5 else 0
+                    is_enforced = 1 if (
+                        is_within_work_hours(meta["work_hours"], hour)
+                        and entry["open_ratio"] > 0.5
+                    ) else 0
                 else:
                     # Eksik veri: komşu saatlerden interpolasyon
                     occ = interpolate_missing(profile_data, dow, hour)
-                    is_enforced = interpolate_enforcement(profile_data, dow, hour)
+                    is_enforced = (
+                        interpolate_enforcement(profile_data, dow, hour)
+                        if is_within_work_hours(meta["work_hours"], hour)
+                        else 0
+                    )
 
                 slots.append(round(occ, 4))
                 enforced.append(is_enforced)
 
         # Kapasite bazında meter sayısı
-        capacity = 0
-        # Son kapasiteyi readings'ten al
-        conn2 = sqlite3.connect(DB_PATH)
-        cap_row = conn2.execute(
-            "SELECT capacity FROM readings WHERE park_id = ? ORDER BY snapshot_id DESC LIMIT 1",
-            (pid,),
-        ).fetchone()
-        conn2.close()
-        if cap_row:
-            capacity = cap_row[0]
+        capacity = latest_capacities.get(pid, 0)
         meters = min(capacity, 50)
 
         # Path ve meter pozisyonları üret (bunlar hala geometrik)
@@ -159,7 +207,7 @@ def compute_profiles(min_days: int):
             "lng": meta["lng"],
             "meters": meters,
             "street": meta["name"],
-            "hood": (meta["district"] or "").title(),
+            "hood": turkish_title(meta["district"] or ""),
             "slots": slots,
             "enforced": enforced,
             "supply": capacity,
@@ -217,7 +265,7 @@ def interpolate_enforcement(profile_data: dict, dow: int, hour: int) -> int:
 
 def parse_work_hours(wh: str):
     """Çalışma saati string'ini (start_hour, end_hour) tuple'ına çevir."""
-    if not wh or "24 Saat" in wh:
+    if not wh or "24 saat" in wh.casefold():
         return (0, 24)
     try:
         parts = wh.split("-")
@@ -228,6 +276,16 @@ def parse_work_hours(wh: str):
         return (start, end)
     except (ValueError, IndexError):
         return (0, 24)
+
+
+def is_within_work_hours(work_hours: str, hour: int) -> bool:
+    """Saatin otopark çalışma aralığında olup olmadığını döndür."""
+    start, end = parse_work_hours(work_hours)
+    if start == 0 and end == 24:
+        return True
+    if start < end:
+        return start <= hour < end
+    return hour >= start or hour < end
 
 
 def generate_path(lat, lng):
@@ -256,7 +314,7 @@ def write_output(blocks: list):
     """parking_week.json ve yardımcı dosyaları yaz."""
     os.makedirs(OUT_DIR, exist_ok=True)
 
-    now = datetime.now().isoformat()
+    now = datetime.now(timezone.utc).isoformat()
 
     # İlk ve son snapshot tarihlerini al
     conn = sqlite3.connect(DB_PATH)
@@ -312,17 +370,22 @@ def write_output(blocks: list):
 
 def main():
     min_days = 7
+    max_age_hours = None
     # Basit arg parse
     if "--min-days" in sys.argv:
         idx = sys.argv.index("--min-days")
         if idx + 1 < len(sys.argv):
             min_days = int(sys.argv[idx + 1])
+    if "--max-age-hours" in sys.argv:
+        idx = sys.argv.index("--max-age-hours")
+        if idx + 1 < len(sys.argv):
+            max_age_hours = int(sys.argv[idx + 1])
 
     print("=" * 60)
     print("İSPARK Gerçek Haftalık Profil Oluşturucu")
     print("=" * 60)
 
-    days = check_db()
+    days = check_db(max_age_hours)
 
     if days < min_days:
         print(f"\nUYARI: Henüz {days} günlük veri var, minimum {min_days} gün gerekli.")
@@ -332,7 +395,7 @@ def main():
             sys.exit(0)
         print("--force ile devam ediliyor...")
 
-    blocks = compute_profiles(min_days)
+    blocks = compute_profiles()
 
     if not blocks:
         print("\nHATA: Hiçbir otopark profili oluşturulamadı.")

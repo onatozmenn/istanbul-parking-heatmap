@@ -1,9 +1,8 @@
 import { occupancyToCss } from "../lib/colors";
 import { deltaToCss } from "../lib/deltaColors";
 import { dayName, formatHour, formatOccupancy } from "../lib/format";
-import { contourFillColor, modeAccentCss } from "../lib/isochroneColors";
 import type { ColumnStyle } from "../layers/parkingColumnLayer";
-import type { TimeSlot, TransportMode } from "../types";
+import type { TimeSlot } from "../types";
 
 const STYLE_LABELS: Record<ColumnStyle, string> = {
   hexgrid: "Altıgen",
@@ -22,12 +21,6 @@ interface MobileInsightsPanelProps {
   is3D?: boolean;
   columnStyle?: ColumnStyle;
   onColumnStyleChange?: (style: ColumnStyle) => void;
-  isochroneActive?: boolean;
-  isochroneMode?: TransportMode;
-}
-
-function rgbaToCss(color: [number, number, number, number]) {
-  return `rgba(${color[0]}, ${color[1]}, ${color[2]}, ${(color[3] / 255).toFixed(2)})`;
 }
 
 function SwatchBar({ colors }: { colors: string[] }) {
@@ -49,17 +42,13 @@ export function MobileInsightsPanel({
   is3D,
   columnStyle,
   onColumnStyleChange,
-  isochroneActive,
-  isochroneMode,
 }: MobileInsightsPanelProps) {
   const selectedIndex = timeSlot.dow * 24 + timeSlot.hour;
   const selectedAverage = cityAverages[selectedIndex] ?? 0;
   const selectedEnforcedFraction = cityEnforcedFraction[selectedIndex] ?? 0;
   const mostlyNotEnforced = selectedEnforcedFraction < 0.5;
 
-  const accent = isochroneActive && isochroneMode
-    ? modeAccentCss(isochroneMode)
-    : occupancyToCss(selectedAverage);
+  const accent = occupancyToCss(selectedAverage);
 
   const legend = comparing
     ? {
@@ -70,17 +59,11 @@ export function MobileInsightsPanel({
         }),
         labels: ["-30%", "0", "+30%"],
       }
-    : isochroneActive && isochroneMode
-      ? {
-          title: "Ulaşım halkaları",
-          colors: Array.from({ length: 10 }, (_, i) => rgbaToCss(contourFillColor(isochroneMode, i))),
-          labels: ["2 dk", "10", "20"],
-        }
-      : {
-          title: "Doluluk",
-          colors: Array.from({ length: 12 }, (_, i) => occupancyToCss(i / 11)),
-          labels: ["0%", "60%", "80%", "100%"],
-        };
+    : {
+        title: "Doluluk",
+        colors: Array.from({ length: 12 }, (_, i) => occupancyToCss(i / 11)),
+        labels: ["0%", "60%", "80%", "100%"],
+      };
 
   return (
     <div className="space-y-3">
@@ -108,7 +91,7 @@ export function MobileInsightsPanel({
           ))}
         </div>
 
-        {is3D && columnStyle && onColumnStyleChange && !comparing && !isochroneActive && (
+        {is3D && columnStyle && onColumnStyleChange && !comparing && (
           <div className="mt-3 border-t border-white/[0.06] pt-3">
             <p className="text-[10px] uppercase tracking-[0.18em] text-white/[0.24]">3B görünüm</p>
             <div className="mt-2 flex flex-wrap gap-1.5">

@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import type { BlockData } from "./types";
+import type { GeoResult } from "./lib/geocode";
 import type { ColumnStyle } from "./layers/parkingColumnLayer";
 import { COLUMN_ZOOM_MIN, SCATTER_ZOOM_MIN } from "./lib/constants";
 import { useParkingData } from "./hooks/useParkingData";
@@ -8,11 +9,11 @@ import { useMapView } from "./hooks/useMapView";
 import { getInitialUrlState, useUrlSync } from "./hooks/useUrlState";
 import { useSearch } from "./hooks/useSearch";
 import { useComparison } from "./hooks/useComparison";
+import { useDesktopViewport } from "./hooks/useDesktopViewport";
 import { createRadiusOverlayLayer } from "./layers/radiusOverlayLayer";
 import { ParkingMap } from "./components/ParkingMap";
 import { Header } from "./components/Header";
 import { SearchBar } from "./components/SearchBar";
-import { IsochroneControl } from "./components/IsochroneControl";
 import { SearchResults } from "./components/SearchResults";
 import { WeekHeatmap } from "./components/WeekHeatmap";
 import { Legend } from "./components/Legend";
@@ -20,33 +21,42 @@ import { TimeControl } from "./components/TimeControl";
 import { ComparisonControl } from "./components/ComparisonControl";
 import { BlockDetailPanel } from "./components/BlockDetailPanel";
 import { MobileInsightsPanel } from "./components/MobileInsightsPanel";
+import { HotspotPanel } from "./components/HotspotPanel";
 
 const urlInit = getInitialUrlState();
 
+function createUrlSearchResult(lat?: number | null, lng?: number | null): GeoResult | null {
+  if (lat == null || lng == null) return null;
+  return { lat, lng, name: "Paylaşılan konum", type: "koordinat" };
+}
+
 function App() {
   const { blocks, cityAverages, cityEnforcedFraction, loading, error, generated } = useParkingData();
+  const isDesktop = useDesktopViewport();
   const { timeSlot, isPlaying, speed, setDow, setHour, setSlot, setSpeed, togglePlay } =
     useTimeSlot(urlInit.timeSlot);
-  const { viewState, onViewStateChange, flyTo } = useMapView(urlInit.viewState);
+  const { viewState, onViewStateChange, flyTo, restoreViewState } = useMapView(urlInit.viewState);
 
-  const [selectedBlock, setSelectedBlock] = useState<BlockData | null>(null);
+  const [selectedBlockId, setSelectedBlockId] = useState<string | null>(urlInit.blockId ?? null);
   const [columnStyle, setColumnStyle] = useState<ColumnStyle>("columns");
 
-  const search = useSearch(blocks, timeSlot);
-  const comparison = useComparison(urlInit.comparing, urlInit.refDow, urlInit.refHour);
-  const pendingBlockId = useMemo(() => urlInit.blockId ?? null, []);
+  const selectedBlock = useMemo(
+    () => blocks.find((block) => block.id === selectedBlockId) ?? null,
+    [blocks, selectedBlockId],
+  );
 
-  useEffect(() => {
-    if (pendingBlockId && blocks.length > 0 && !selectedBlock) {
-      const found = blocks.find((block) => block.id === pendingBlockId);
-      if (found) setSelectedBlock(found);
-    }
-  }, [blocks, pendingBlockId, selectedBlock]);
+  const search = useSearch(blocks, timeSlot, {
+    initialResult: createUrlSearchResult(urlInit.searchLat, urlInit.searchLng),
+    initialRadius: urlInit.searchRadius,
+  });
+  const comparison = useComparison(urlInit.comparing, urlInit.refDow, urlInit.refHour);
+  const restoreSearch = search.restoreSearch;
+  const restoreComparison = comparison.restoreComparison;
 
   useUrlSync({
     timeSlot,
     viewState,
-    selectedBlockId: selectedBlock?.id ?? null,
+    selectedBlockId,
     isPlaying,
     searchLat: search.selectedResult?.lat,
     searchLng: search.selectedResult?.lng,
@@ -60,34 +70,36 @@ function App() {
     function handleUrlChange() {
       const state = getInitialUrlState();
       if (state.timeSlot) setSlot(state.timeSlot.dow, state.timeSlot.hour);
-
-      if (state.blockId && blocks.length > 0) {
-        const found = blocks.find((block) => block.id === state.blockId);
-        if (found) setSelectedBlock(found);
-      } else if (!state.blockId) {
-        setSelectedBlock(null);
-      }
+      if (state.viewState) restoreViewState(state.viewState);
+      setSelectedBlockId(state.blockId ?? null);
+      restoreSearch(
+        createUrlSearchResult(state.searchLat, state.searchLng),
+        state.searchRadius,
+      );
+      restoreComparison(state.comparing ?? false, state.refDow, state.refHour);
     }
 
     window.addEventListener("urlstatechange", handleUrlChange);
     return () => window.removeEventListener("urlstatechange", handleUrlChange);
-  }, [blocks, setSlot]);
+  }, [
+    setSlot,
+    restoreViewState,
+    restoreSearch,
+    restoreComparison,
+  ]);
 
   const handleBlockClick = useCallback(
     (block: BlockData | null) => {
-      setSelectedBlock(block);
+      setSelectedBlockId(block?.id ?? null);
       if (block) flyTo(block.lng, block.lat);
     },
     [flyTo],
   );
 
-  const handleSearchSelect = useCallback(
-    (result: { lat: number; lng: number; name: string; type: string }) => {
-      search.selectResult(result);
-      flyTo(result.lng, result.lat, 15);
-    },
-    [flyTo, search],
-  );
+  function handleSearchSelect(result: GeoResult) {
+    search.selectResult(result);
+    flyTo(result.lng, result.lat, 15);
+  }
 
   const searchExtraLayers = useMemo(() => {
     if (!search.selectedResult) return [];
@@ -136,7 +148,7 @@ function App() {
       <ParkingMap
         blocks={blocks}
         timeSlot={timeSlot}
-        selectedBlockId={selectedBlock?.id ?? null}
+        selectedBlockId={selectedBlockId}
         viewState={viewState}
         onViewStateChange={onViewStateChange}
         onBlockClick={handleBlockClick}
@@ -146,22 +158,31 @@ function App() {
         columnStyle={columnStyle}
       />
 
-      <SearchBar
-        query={search.query}
-        results={search.results}
-        isSearching={search.isSearching}
-        radius={search.radius}
-        hasSelection={search.selectedResult !== null}
-        onQueryChange={search.setQuery}
-        onSelectResult={handleSearchSelect}
-        onClear={search.clearSearch}
-        onRadiusChange={search.setRadius}
-      />
+      <div className="pointer-events-none absolute inset-x-0 top-0 z-40 px-3 pt-[calc(env(safe-area-inset-top,0px)+0.75rem)] lg:px-4">
+        <div className="mx-auto grid max-w-[100rem] grid-cols-1 gap-2 md:grid-cols-[minmax(14rem,0.8fr)_minmax(24rem,1.5fr)] lg:grid-cols-[minmax(13rem,1fr)_minmax(25rem,31rem)_minmax(13rem,1fr)] lg:items-start lg:gap-3">
+          <Header generated={generated} />
 
-      <IsochroneControl
-        blocks={blocks}
-        timeSlot={timeSlot}
-      />
+          <SearchBar
+            query={search.query}
+            results={search.results}
+            isSearching={search.isSearching}
+            radius={search.radius}
+            hasSelection={search.selectedResult !== null}
+            onQueryChange={search.setQuery}
+            onSelectResult={handleSearchSelect}
+            onClear={search.clearSearch}
+            onRadiusChange={search.setRadius}
+          />
+
+          <div className="pointer-events-none flex flex-col items-end gap-2 md:col-span-2 lg:col-span-1">
+            {isDesktop && (
+              <div className="pointer-events-auto w-full xl:w-80">
+                <HotspotPanel blocks={blocks} timeSlot={timeSlot} className="w-full" />
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
 
       {search.selectedResult && (
         <SearchResults
@@ -171,29 +192,32 @@ function App() {
         />
       )}
 
-      <Header generated={generated} />
+      {isDesktop && (
+        <>
+          <WeekHeatmap
+            cityAverages={cityAverages}
+            cityEnforcedFraction={cityEnforcedFraction}
+            timeSlot={timeSlot}
+            onCellClick={handleWeekCellClick}
+          />
 
-      <WeekHeatmap
-        cityAverages={cityAverages}
-        cityEnforcedFraction={cityEnforcedFraction}
-        timeSlot={timeSlot}
-        onCellClick={handleWeekCellClick}
-      />
-
-      <Legend
-        is3D={viewState.zoom >= COLUMN_ZOOM_MIN && viewState.zoom < SCATTER_ZOOM_MIN}
-        comparing={comparison.comparing}
-        columnStyle={columnStyle}
-        onColumnStyleChange={setColumnStyle}
-      />
+          <Legend
+            is3D={viewState.zoom >= COLUMN_ZOOM_MIN && viewState.zoom < SCATTER_ZOOM_MIN}
+            comparing={comparison.comparing}
+            columnStyle={columnStyle}
+            onColumnStyleChange={setColumnStyle}
+          />
+        </>
+      )}
 
       {comparison.comparing && viewState.zoom < COLUMN_ZOOM_MIN && (
-        <div className="absolute left-1/2 top-16 z-20 -translate-x-1/2 rounded-lg border border-purple-500/30 bg-purple-500/20 px-3 py-1.5 text-[11px] text-purple-300">
+        <div className="pointer-events-none absolute left-1/2 top-44 z-20 -translate-x-1/2 rounded-lg border border-purple-500/30 bg-purple-500/20 px-3 py-1.5 text-center text-[11px] text-purple-300 lg:top-24">
           Fark görünümü için yakınlaştırın
         </div>
       )}
 
       <TimeControl
+        isDesktop={isDesktop}
         timeSlot={timeSlot}
         isPlaying={isPlaying}
         speed={speed}
@@ -226,7 +250,7 @@ function App() {
       <BlockDetailPanel
         block={selectedBlock}
         timeSlot={timeSlot}
-        onClose={() => setSelectedBlock(null)}
+        onClose={() => setSelectedBlockId(null)}
         comparing={comparison.comparing}
         referenceSlot={comparison.referenceSlot}
       />

@@ -1,6 +1,6 @@
 import { useState, useCallback, useRef } from "react";
-import { FlyToInterpolator } from "deck.gl";
-import type { MapViewState } from "deck.gl";
+import { FlyToInterpolator } from "@deck.gl/core";
+import type { MapViewState } from "@deck.gl/core";
 import { DEFAULT_CENTER, DEFAULT_ZOOM, COLUMN_TIER_PITCH, getZoomTier } from "../lib/constants";
 import type { ZoomTier } from "../lib/constants";
 
@@ -63,10 +63,19 @@ export function useMapView(initialOverrides?: Partial<MapViewState>) {
     setViewState(vs);
   }, []);
 
+  const restoreViewState = useCallback((overrides: Partial<MapViewState>) => {
+    setViewState((prev) => {
+      const next = { ...prev, ...overrides, transitionDuration: 0 };
+      prevTierRef.current = getZoomTier(next.zoom);
+      userPitchRef.current = (next.pitch ?? 0) !== 0;
+      return next;
+    });
+  }, []);
+
   return {
     viewState,
-    setViewState,
     onViewStateChange,
     flyTo,
+    restoreViewState,
   };
 }

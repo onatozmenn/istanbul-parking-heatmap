@@ -2,15 +2,21 @@ name: Saatlik İSPARK Veri Toplama
 
 on:
   schedule:
-    # Her saat başı çalışır (UTC). Türkiye UTC+3, yani 00:00 UTC = 03:00 TR
-    - cron: '0 * * * *'
+    # Tam saat yoğunluğundan kaçınmak için her saatin 17. dakikasında çalışır (UTC).
+    - cron: '17 * * * *'
   workflow_dispatch: # Manuel tetikleme (Actions sekmesinden "Run workflow" butonuyla)
+
+concurrency:
+  group: ispark-history-${{ github.repository }}
+  cancel-in-progress: false
 
 jobs:
   collect:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     permissions:
-      contents: write
+      actions: read
+      contents: read
 
     steps:
       - name: Checkout
@@ -26,18 +32,32 @@ jobs:
       - name: data klasörünü oluştur
         run: mkdir -p data
 
+      - name: Son veritabanını geri yükle
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir -p .artifact
+          RUN_ID=$(gh api "repos/${GITHUB_REPOSITORY}/actions/artifacts?name=ispark-history&per_page=100" \
+            --jq '[.artifacts[] | select(.expired == false)] | sort_by(.created_at) | last | .workflow_run.id // empty')
+          if [ -n "$RUN_ID" ]; then
+            gh run download "$RUN_ID" --name ispark-history --dir .artifact
+            test -f .artifact/ispark_history.db
+            cp .artifact/ispark_history.db data/ispark_history.db
+          elif [ -f data/ispark_history.db ]; then
+            echo "::warning::Canlı artifact bulunamadı; haftalık repo checkpoint'i kullanılıyor."
+          else
+            echo "::error::Ne artifact ne de repo checkpoint'i bulunabildi."
+            exit 1
+          fi
+
       - name: Veri topla
         run: python scripts/collect_hourly.py
 
-      - name: Veritabanını commit & push et
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add data/ispark_history.db
-          if git diff --cached --quiet; then
-            echo "Değişiklik yok, commit atlanıyor."
-          else
-            git commit -m "data: saatlik İSPARK snapshot $(date -u +'%Y-%m-%d %H:%M UTC')"
-            git pull --rebase
-            git push
-          fi
+      - name: Veritabanını artifact olarak sakla
+        uses: actions/upload-artifact@v4
+        with:
+          name: ispark-history
+          path: data/ispark_history.db
+          retention-days: 2
+          compression-level: 6
+          if-no-files-found: error

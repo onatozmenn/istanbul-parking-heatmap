@@ -1,6 +1,6 @@
-import { ColumnLayer, PolygonLayer, ScatterplotLayer } from "deck.gl";
+import { ColumnLayer, PolygonLayer, ScatterplotLayer } from "@deck.gl/layers";
 import { HexagonLayer } from "@deck.gl/aggregation-layers";
-import type { Layer } from "deck.gl";
+import type { Layer } from "@deck.gl/core";
 import type { BlockData, TimeSlot } from "../types";
 import { occupancyToColor } from "../lib/colors";
 import { getTimeSlotIndex, isEnforcedAt } from "../lib/occupancy";
@@ -92,7 +92,6 @@ function createTunedColumnLayer(
       autoHighlight: true,
       highlightColor: [255, 255, 255, 60],
       material: { ambient: 0.6, diffuse: 0.8, shininess: 20 },
-      transitions: { getElevation: 300, getFillColor: 300 },
       updateTriggers: {
         getFillColor: [slotIdx],
         getElevation: [slotIdx],
@@ -128,7 +127,6 @@ function createStreetBarsLayer(
       autoHighlight: true,
       highlightColor: [255, 255, 255, 60],
       material: { ambient: 0.5, diffuse: 0.8, shininess: 30 },
-      transitions: { getElevation: 300, getFillColor: 300 },
       updateTriggers: { getFillColor: [slotIdx], getElevation: [slotIdx] },
     }),
   );

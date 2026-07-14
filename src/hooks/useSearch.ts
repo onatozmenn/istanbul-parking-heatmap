@@ -16,29 +16,54 @@ export interface SearchState {
   nearbyBlocks: BlockData[];
 }
 
-export function useSearch(blocks: BlockData[], timeSlot: TimeSlot) {
-  const [query, setQuery] = useState("");
+interface UseSearchOptions {
+  initialResult?: GeoResult | null;
+  initialRadius?: number | null;
+}
+
+function normalizeRadius(radius?: number | null): RadiusOption {
+  return RADIUS_OPTIONS.find((option) => option === radius) ?? 400;
+}
+
+export function useSearch(
+  blocks: BlockData[],
+  timeSlot: TimeSlot,
+  options: UseSearchOptions = {},
+) {
+  const [query, setQuery] = useState(options.initialResult?.name ?? "");
   const [results, setResults] = useState<GeoResult[]>([]);
-  const [selectedResult, setSelectedResult] = useState<GeoResult | null>(null);
-  const [radius, setRadius] = useState<RadiusOption>(400);
+  const [selectedResult, setSelectedResult] = useState<GeoResult | null>(
+    options.initialResult ?? null,
+  );
+  const [radius, setRadius] = useState<RadiusOption>(() =>
+    normalizeRadius(options.initialRadius),
+  );
   const [isSearching, setIsSearching] = useState(false);
   const debounceRef = useRef<number | null>(null);
+  const requestIdRef = useRef(0);
 
   // Debounced geocoding
   const handleQueryChange = useCallback((q: string) => {
+    const requestId = ++requestIdRef.current;
     setQuery(q);
     if (debounceRef.current != null) clearTimeout(debounceRef.current);
 
     if (q.trim().length < 2) {
       setResults([]);
+      setIsSearching(false);
       return;
     }
 
     setIsSearching(true);
     debounceRef.current = window.setTimeout(async () => {
-      const r = await geocode(q);
-      setResults(r);
-      setIsSearching(false);
+      try {
+        const nextResults = await geocode(q);
+        if (requestId === requestIdRef.current) setResults(nextResults);
+      } catch {
+        if (requestId === requestIdRef.current) setResults([]);
+      } finally {
+        if (requestId === requestIdRef.current) setIsSearching(false);
+      }
     }, 300);
   }, []);
 
@@ -63,15 +88,30 @@ export function useSearch(blocks: BlockData[], timeSlot: TimeSlot) {
   }, [selectedResult, radius, blocks, timeSlot]);
 
   const selectResult = useCallback((result: GeoResult) => {
+    requestIdRef.current++;
     setSelectedResult(result);
     setResults([]);
     setQuery(result.name);
+    setIsSearching(false);
   }, []);
 
   const clearSearch = useCallback(() => {
+    requestIdRef.current++;
+    if (debounceRef.current != null) clearTimeout(debounceRef.current);
     setQuery("");
     setResults([]);
     setSelectedResult(null);
+    setIsSearching(false);
+  }, []);
+
+  const restoreSearch = useCallback((result: GeoResult | null, nextRadius?: number | null) => {
+    requestIdRef.current++;
+    if (debounceRef.current != null) clearTimeout(debounceRef.current);
+    setQuery(result?.name ?? "");
+    setResults([]);
+    setSelectedResult(result);
+    setRadius(normalizeRadius(nextRadius));
+    setIsSearching(false);
   }, []);
 
   return {
@@ -85,5 +125,6 @@ export function useSearch(blocks: BlockData[], timeSlot: TimeSlot) {
     setRadius,
     selectResult,
     clearSearch,
+    restoreSearch,
   };
 }

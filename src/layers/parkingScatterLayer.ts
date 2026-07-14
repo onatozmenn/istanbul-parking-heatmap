@@ -1,4 +1,4 @@
-import { ScatterplotLayer } from "deck.gl";
+import { ScatterplotLayer } from "@deck.gl/layers";
 import type { BlockData, TimeSlot } from "../types";
 import { occupancyToColor } from "../lib/colors";
 import { getTimeSlotIndex, isEnforcedAt } from "../lib/occupancy";

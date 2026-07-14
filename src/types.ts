@@ -1,4 +1,4 @@
-import type { MapViewState } from "deck.gl";
+import type { MapViewState } from "@deck.gl/core";
 
 /** A metered block with its centroid and typical-week occupancy profile */
 export interface BlockData {
@@ -39,43 +39,6 @@ export interface TimeSlot {
 export interface PlaybackState {
   isPlaying: boolean;
   speed: number; // ms per step
-}
-
-/** Transport modes for isochrone visualization */
-export type TransportMode = "driving" | "cycling" | "walking";
-
-/** A grid point used as an isochrone origin */
-export interface IsochroneOrigin {
-  id: number;
-  lat: number;
-  lng: number;
-}
-
-/** GeoJSON polygon contour for a single time threshold */
-export interface IsochroneContour {
-  minutes: number;
-  geometry: GeoJSON.Polygon | GeoJSON.MultiPolygon;
-}
-
-/** Isochrone data for one grid point across all speed profiles */
-export interface IsochroneSet {
-  grid: IsochroneOrigin[];
-  profileMap: number[]; // 168 entries: slot index -> profile index (0-5)
-  isochrones: Record<
-    string, // grid point ID
-    Record<
-      string, // profile index
-      Record<string, GeoJSON.Feature> // minutes -> GeoJSON Feature
-    >
-  >;
-}
-
-/** Isochrone interaction state */
-export interface IsochroneState {
-  isActive: boolean;
-  origin: IsochroneOrigin | null;
-  mode: TransportMode;
-  maxMinutes: number; // max travel time to show (2-20, controls how many bands visible)
 }
 
 export type { MapViewState };

@@ -31,6 +31,12 @@ export function useComparison(initialComparing?: boolean, initialRefDow?: number
     setReferenceSlot(null);
   }, []);
 
+  const restoreComparison = useCallback((nextComparing: boolean, refDow?: number | null, refHour?: number | null) => {
+    const hasReference = nextComparing && refDow != null && refHour != null;
+    setComparing(hasReference);
+    setReferenceSlot(hasReference ? { dow: refDow, hour: refHour } : null);
+  }, []);
+
   // Keyboard shortcut: C to toggle comparison, Escape to exit
   useEffect(() => {
     function handleKeyDown(e: KeyboardEvent) {
@@ -50,5 +56,6 @@ export function useComparison(initialComparing?: boolean, initialRefDow?: number
     referenceSlot,
     pinReference,
     exitComparison,
+    restoreComparison,
   };
 }

@@ -1,7 +1,7 @@
 import { useCallback, useMemo } from "react";
 import { Map } from "react-map-gl/maplibre";
 import { DeckGL } from "@deck.gl/react";
-import type { Layer, PickingInfo, MapViewState } from "deck.gl";
+import type { Layer, PickingInfo, MapViewState } from "@deck.gl/core";
 import "maplibre-gl/dist/maplibre-gl.css";
 
 import type { BlockData, TimeSlot } from "../types";
@@ -24,7 +24,6 @@ interface ParkingMapProps {
   viewState: MapViewState;
   onViewStateChange: (vs: MapViewState) => void;
   onBlockClick: (block: BlockData | null) => void;
-  onMapClick?: (coordinate: [number, number]) => void;
   extraLayers?: Layer[];
   comparing?: boolean;
   referenceSlot?: TimeSlot | null;
@@ -38,7 +37,6 @@ export function ParkingMap({
   viewState,
   onViewStateChange,
   onBlockClick,
-  onMapClick,
   extraLayers,
   comparing,
   referenceSlot,
@@ -99,13 +97,11 @@ export function ParkingMap({
     (info: PickingInfo) => {
       if (info.object) {
         onBlockClick(info.object as BlockData);
-      } else if (onMapClick && info.coordinate) {
-        onMapClick(info.coordinate as [number, number]);
       } else {
         onBlockClick(null);
       }
     },
-    [onBlockClick, onMapClick],
+    [onBlockClick],
   );
 
   const getTooltip = useCallback(
@@ -129,8 +125,9 @@ export function ParkingMap({
       onClick={handleClick}
       getTooltip={getTooltip}
       controller
+      useDevicePixels={1}
     >
-      <Map mapStyle={MAP_STYLE} attributionControl={false} />
+      <Map mapStyle={MAP_STYLE} attributionControl={false} pixelRatio={1} />
     </DeckGL>
   );
 }

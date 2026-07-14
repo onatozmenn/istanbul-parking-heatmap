@@ -1,4 +1,4 @@
-import { ScatterplotLayer } from "deck.gl";
+import { ScatterplotLayer } from "@deck.gl/layers";
 
 interface RadiusCenter {
   lng: number;

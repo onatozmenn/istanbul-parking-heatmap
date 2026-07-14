@@ -52,9 +52,22 @@ TYPE_WEIGHT = {
 }
 
 
+def turkish_title(value: str) -> str:
+    """Büyük harfli Türkçe yer adını başlık biçimine çevir."""
+    lowered = value.translate(str.maketrans({"I": "ı", "İ": "i"})).lower()
+
+    def capitalize_word(word: str) -> str:
+        if not word:
+            return word
+        first = {"i": "İ", "ı": "I"}.get(word[0], word[0].upper())
+        return first + word[1:]
+
+    return " ".join(capitalize_word(word) for word in lowered.split())
+
+
 def parse_work_hours(wh: str):
     """Çalışma saati string'ini (start_hour, end_hour) tuple'ına çevir"""
-    if not wh or "24 Saat" in wh:
+    if not wh or "24 saat" in wh.casefold():
         return (0, 24)
     try:
         parts = wh.split("-")
@@ -67,20 +80,28 @@ def parse_work_hours(wh: str):
         return (0, 24)
 
 
+def is_within_work_hours(work_hours: str, hour: int) -> bool:
+    """Saatin otopark çalışma aralığında olup olmadığını döndür."""
+    start, end = parse_work_hours(work_hours)
+    if start == 0 and end == 24:
+        return True
+    if start < end:
+        return start <= hour < end
+    return hour >= start or hour < end
+
+
 def generate_weekly_profile(base_occ: float, park_type: str, work_hours: str) -> list:
     """
     168 slotluk (7 gün × 24 saat) gerçekçi doluluk profili üret.
     İstanbul park alışkanlıklarını yansıtır.
     """
-    start_h, end_h = parse_work_hours(work_hours)
     is_yol_ustu = park_type == "YOL ÜSTÜ"
     slots = []
 
     for dow in range(7):  # 0=Pzt..6=Paz
         for hour in range(24):
             # Çalışma saati dışında
-            is_24h = (start_h == 0 and end_h == 24)
-            if not is_24h and (hour < start_h or hour >= end_h):
+            if not is_within_work_hours(work_hours, hour):
                 occ = 0.0  # Kapalı
                 slots.append(round(occ, 4))
                 continue
@@ -140,17 +161,10 @@ def generate_weekly_profile(base_occ: float, park_type: str, work_hours: str) ->
 
 def generate_enforcement(work_hours: str) -> list:
     """168 slotluk uygulama takvimi"""
-    start_h, end_h = parse_work_hours(work_hours)
-    is_24h = (start_h == 0 and end_h == 24)
     enforced = []
     for dow in range(7):
         for hour in range(24):
-            if is_24h:
-                enforced.append(1)
-            elif start_h <= hour < end_h and dow < 6:  # Pazar kapalı varsayalım
-                enforced.append(1)
-            else:
-                enforced.append(0)
+            enforced.append(1 if is_within_work_hours(work_hours, hour) else 0)
     return enforced
 
 
@@ -238,7 +252,7 @@ def main():
             "lng": lng,
             "meters": meters,
             "street": name,
-            "hood": district.title(),
+            "hood": turkish_title(district),
             "slots": slots,
             "enforced": enforced,
             "supply": capacity,
@@ -253,7 +267,7 @@ def main():
             "lng": lng,
             "meters": meters,
             "street": name,
-            "hood": district.title(),
+            "hood": turkish_title(district),
             "supply": capacity,
             "path": path,
             "meterPositions": meter_pos,

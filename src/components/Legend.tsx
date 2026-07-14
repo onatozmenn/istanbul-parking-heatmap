@@ -1,8 +1,6 @@
 import { occupancyToCss } from "../lib/colors";
 import { deltaToCss } from "../lib/deltaColors";
-import { contourFillColor, modeAccentCss } from "../lib/isochroneColors";
 import type { ColumnStyle } from "../layers/parkingColumnLayer";
-import type { TransportMode } from "../types";
 
 const STYLE_LABELS: Record<ColumnStyle, string> = {
   hexgrid: "Altıgen",
@@ -17,12 +15,6 @@ interface LegendProps {
   comparing?: boolean;
   columnStyle?: ColumnStyle;
   onColumnStyleChange?: (style: ColumnStyle) => void;
-  isochroneActive?: boolean;
-  isochroneMode?: TransportMode;
-}
-
-function rgbaToCss(color: [number, number, number, number]) {
-  return `rgba(${color[0]}, ${color[1]}, ${color[2]}, ${(color[3] / 255).toFixed(2)})`;
 }
 
 function SwatchBar({ colors }: { colors: string[] }) {
@@ -40,22 +32,16 @@ export function Legend({
   comparing,
   columnStyle,
   onColumnStyleChange,
-  isochroneActive,
-  isochroneMode,
 }: LegendProps) {
   if (comparing) {
     return <DeltaLegend is3D={is3D} />;
-  }
-
-  if (isochroneActive && isochroneMode) {
-    return <IsochroneLegend mode={isochroneMode} />;
   }
 
   const colors = Array.from({ length: 12 }, (_, i) => occupancyToCss(i / 11));
 
   return (
     <div
-      className="absolute bottom-6 right-5 z-20 rounded-[9px] glass-panel px-5 py-4 panel-fade-up hide-on-mobile"
+      className="panel-fade-up absolute bottom-[12.5rem] right-5 z-20 hidden rounded-[9px] glass-panel px-5 py-4 lg:block"
       style={{ boxShadow: "none" }}
     >
       <p className="mb-2.5 text-[11px] font-medium uppercase tracking-widest text-white/30">
@@ -122,7 +108,7 @@ export function Legend({
             <span className="h-2.5 w-2 rounded-[9px] bg-yellow-400/60" />
             <span className="h-2.5 w-2 rounded-[9px] bg-red-500/60" />
           </div>
-          <span className="text-[10px] text-white/30">Şikayetlerden tahmin</span>
+          <span className="text-[10px] text-white/30">Geçmiş profilden tahmin</span>
         </div>
       </div>
     </div>
@@ -137,7 +123,7 @@ function DeltaLegend({ is3D }: { is3D?: boolean }) {
 
   return (
     <div
-      className="absolute bottom-6 right-5 z-20 rounded-[9px] glass-panel px-5 py-4 panel-fade-up hide-on-mobile"
+      className="panel-fade-up absolute bottom-[12.5rem] right-5 z-20 hidden rounded-[9px] glass-panel px-5 py-4 lg:block"
       style={{ borderColor: "rgba(168, 85, 247, 0.15)", boxShadow: "none" }}
     >
       <p className="mb-2.5 text-[11px] font-medium uppercase tracking-widest text-purple-300/80">
@@ -169,51 +155,6 @@ function DeltaLegend({ is3D }: { is3D?: boolean }) {
           </div>
         </div>
       )}
-    </div>
-  );
-}
-
-const ISO_MODE_LABELS: Record<TransportMode, string> = {
-  driving: "Araç",
-  cycling: "Bisiklet",
-  walking: "Yürüyüş",
-};
-
-function IsochroneLegend({ mode }: { mode: TransportMode }) {
-  const label = ISO_MODE_LABELS[mode];
-  const accent = modeAccentCss(mode);
-  const colors = Array.from({ length: 10 }, (_, i) => rgbaToCss(contourFillColor(mode, i)));
-
-  return (
-    <div
-      className="absolute bottom-6 right-5 z-20 rounded-[9px] glass-panel px-5 py-4 panel-fade-up hide-on-mobile"
-      style={{ boxShadow: "none" }}
-    >
-      <p className="mb-2.5 text-[11px] font-medium uppercase tracking-widest" style={{ color: accent, opacity: 0.8 }}>
-        {label} İzokron
-      </p>
-
-      <SwatchBar colors={colors} />
-
-      <div className="mt-2 flex justify-between text-[11px] tabular-nums text-white/25">
-        <span>2 dk</span>
-        <span>10</span>
-        <span>20</span>
-      </div>
-
-      <div className="mt-1 flex justify-between text-[10px] font-medium">
-        <span style={{ color: accent, opacity: 0.8 }}>Yakın</span>
-        <span className="text-white/25">Ulaşılabilir</span>
-        <span className="text-white/15">Uzak</span>
-      </div>
-
-      <div className="mt-3 border-t border-white/[0.05] pt-3">
-        <div className="flex items-center gap-2">
-          <div className="h-3 w-3 rounded-[9px]" style={{ backgroundColor: accent }} />
-          <span className="text-[10px] text-white/30">Başlangıç noktası</span>
-        </div>
-        <p className="mt-1 text-[10px] text-white/20">Yoğun saatlerde halkalar daralır</p>
-      </div>
     </div>
   );
 }

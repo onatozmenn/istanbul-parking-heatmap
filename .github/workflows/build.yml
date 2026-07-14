@@ -24,8 +24,24 @@ jobs:
           node-version: 22
           cache: pnpm
 
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
+
+      - name: Lint
+        run: pnpm lint
+
+      - name: Test
+        run: pnpm test
+
+      - name: Python test
+        run: |
+          python -m unittest scripts.test_collect_hourly
+          python -m py_compile scripts/*.py
 
       - name: Build
         run: pnpm build

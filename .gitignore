@@ -3,6 +3,8 @@ node_modules
 
 # Build output
 dist
+__pycache__/
+*.py[cod]
 
 # Editor / OS detritus
 .DS_Store

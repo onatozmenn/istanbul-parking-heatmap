@@ -14,7 +14,7 @@ export function WeekHeatmap({ cityAverages, cityEnforcedFraction, timeSlot, onCe
 
   return (
     <div
-      className="absolute bottom-40 left-7 z-20 rounded-[9px] glass-panel p-4 hide-on-mobile compact-on-tablet panel-fade-up"
+      className="panel-fade-up absolute bottom-[12.5rem] left-5 z-20 hidden rounded-[9px] glass-panel p-4 lg:block"
       style={{ boxShadow: "none" }}
     >
       <p className="text-[10px] mb-2 font-medium tracking-widest text-white/30 uppercase">

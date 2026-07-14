@@ -4,6 +4,7 @@ import { dayName, formatHour, formatTimeSlot } from "../lib/format";
 import type { TimeSlot } from "../types";
 
 interface TimeControlProps {
+  isDesktop: boolean;
   timeSlot: TimeSlot;
   isPlaying: boolean;
   speed: number;
@@ -25,6 +26,7 @@ const SPEED_OPTIONS = [
 const HOUR_TICKS = [6, 9, 12, 15, 18, 21];
 
 export function TimeControl({
+  isDesktop,
   timeSlot,
   isPlaying,
   speed,
@@ -38,9 +40,9 @@ export function TimeControl({
   const [showInsights, setShowInsights] = useState(false);
 
   return (
-    <div className="pointer-events-none absolute inset-x-0 bottom-[calc(env(safe-area-inset-bottom,0px)+0.75rem)] z-20 sm:bottom-6">
-      <div className="pointer-events-auto px-3 pb-3 sm:hidden">
-        <div className="mobile-sheet panel-fade-up rounded-[28px] glass-panel px-4 pb-4 pt-2.5">
+    <div className="pointer-events-none absolute inset-x-0 bottom-[calc(env(safe-area-inset-bottom,0px)+0.5rem)] z-20 lg:bottom-6">
+      {!isDesktop && <div className="pointer-events-auto px-3 pb-2">
+        <div className="mobile-sheet panel-fade-up hide-scrollbar mx-auto max-h-[calc(100dvh-13.5rem)] max-w-xl overflow-y-auto rounded-[20px] glass-panel px-4 pb-4 pt-2.5">
           <div className="mx-auto h-1 w-11 rounded-full bg-white/[0.14]" />
 
           <div className="mt-3 flex items-start justify-between gap-3">
@@ -100,15 +102,15 @@ export function TimeControl({
             </div>
           </div>
 
-          <div className="mt-3 flex items-center justify-between gap-3">
-            <div className="hide-scrollbar flex items-center gap-1 overflow-x-auto rounded-full bg-white/[0.04] p-1">
+          <div className="mt-3 grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2">
+            <div className="hide-scrollbar flex min-w-0 items-center justify-between gap-0.5 overflow-x-auto rounded-full bg-white/[0.04] p-1">
               {SPEED_OPTIONS.map((opt) => (
                 <button
                   key={opt.value}
                   onClick={() => onSpeedChange(opt.value)}
                   aria-label={`Hız ${opt.label}`}
                   aria-pressed={speed === opt.value}
-                  className={`shrink-0 rounded-full px-2.5 py-1 text-[10px] font-medium transition-colors ${
+                  className={`min-w-10 shrink-0 rounded-full px-2 py-1 text-[10px] font-medium transition-colors ${
                     speed === opt.value
                       ? "bg-white text-gray-950"
                       : "text-white/[0.45]"
@@ -137,10 +139,10 @@ export function TimeControl({
             </div>
           )}
         </div>
-      </div>
+      </div>}
 
-      <div className="pointer-events-auto hidden px-5 sm:block">
-        <div className="panel-fade-up mx-auto w-full max-w-3xl rounded-[9px] glass-panel px-5 py-4 sm:translate-x-6" style={{ boxShadow: "none" }}>
+      {isDesktop && <div className="pointer-events-auto px-5">
+        <div className="panel-fade-up mx-auto w-full max-w-3xl rounded-[9px] glass-panel px-5 py-4" style={{ boxShadow: "none" }}>
           <div className="mb-3 flex items-center justify-center gap-3">
             <span className={`text-[13px] font-medium tracking-wide text-white/90 ${isPlaying ? "play-pulse" : ""}`}>
               {formatTimeSlot(timeSlot.dow, timeSlot.hour)}
@@ -215,7 +217,7 @@ export function TimeControl({
             </div>
           </div>
         </div>
-      </div>
+      </div>}
     </div>
   );
 }

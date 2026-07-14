@@ -16,8 +16,7 @@
 - **Otopark detay paneli**: otopark bazında saatlik doluluk dağılımı, kapasite, çalışma saatleri
 - **Karşılaştırma modu**: referans zaman dilimini sabitleyin, başka bir dilimle farkları görün
 - **Arama + yarıçap**: belirli bir adresi bulun ve çevresindeki park durumunu inceleyin
-- **İzokron modu**: bir başlangıç noktası seçin ve N dakikada araba/bisiklet/yürüyüşle ne kadar uzağa gidebileceğinizi görün (yerel Valhalla yönlendirme kullanır — aşağıya bakın)
-- **Derin bağlantılı URL durumu**: her seçim (zaman, görünüm, otopark, arama, izokron) URL'de saklanır, böylece her görünüm paylaşılabilir
+- **Derin bağlantılı URL durumu**: her seçim (zaman, görünüm, otopark, arama, karşılaştırma) URL'de saklanır, böylece her görünüm paylaşılabilir
 
 ## Veri kaynakları
 
@@ -37,7 +36,6 @@ Harita altlığı [CARTO Dark Matter](https://carto.com/basemaps/) açık vektö
 - **Veri hattı**: Python 3 standart kütüphanesi + SQLite — `requirements.txt` gerekmez
 - **Otomasyon**: GitHub Actions ile saatlik veri toplama ve haftalık profil güncelleme
 - **Test**: Vitest ile birim testleri
-- **Yönlendirme (opsiyonel)**: İzokron hesaplaması için Docker'da çalışan [Valhalla](https://github.com/valhalla/valhalla)
 
 ## Kurulum
 
@@ -78,12 +76,11 @@ istanbul-parking-heatmap/
 ├── src/
 │   ├── App.tsx
 │   ├── components/     # Harita, paneller, kontroller, ipuçları
-│   ├── hooks/          # Veri yükleme, zaman dilimi, URL durumu, izokronlar
+│   ├── hooks/          # Veri yükleme, zaman dilimi, arama ve URL durumu
 │   ├── layers/         # deck.gl katman fabrikaları (zoom seviyesine göre)
-│   ├── lib/            # Renk ölçekleri, sabitler, coğrafi yardımcılar
+│   ├── lib/            # Renk ölçekleri, sabitler ve format yardımcıları
 │   ├── __tests__/      # Vitest birim testleri
 │   └── types.ts
-└── docker-compose.yml  # İzokronlar için opsiyonel Valhalla servisi
 ```
 
 ## Doluluk nasıl hesaplanır
@@ -94,10 +91,11 @@ istanbul-parking-heatmap/
 
 GitHub Actions ile otomatik çalışır — siz hiçbir şey yapmazsınız:
 
-1. **Saatlik toplama** (`collect_hourly.py`): Her saat başı İSPARK API'den tüm otoparkların anlık doluluk oranı çekilir ve SQLite veritabanına kaydedilir
-2. **Haftalık profil oluşturma** (`build_profiles.py`): Her Pazartesi, biriken tüm snapshot'lardan her otopark × her (gün, saat) çifti için gerçek ortalama doluluk hesaplanır
-3. **Eksik slot interpolasyonu**: Henüz veri toplanmamış saatler, komşu saatlerden ve aynı saatteki diğer günlerden interpolasyonla doldurulur
-4. **Otomatik commit**: Güncellenmiş profiller otomatik olarak repo'ya push'lanır
+1. **Saatlik toplama** (`collect_hourly.py`): Her saatin 17. dakikasında İSPARK API'den tüm otoparkların anlık doluluk oranı çekilir ve SQLite veritabanına kaydedilir
+2. **Kayan veri penceresi**: Ham snapshot geçmişi son 12 haftayla sınırlandırılır; profil güncel kalırken SQLite ve artifact boyutu sabitlenir
+3. **Haftalık profil oluşturma** (`build_profiles.py`): Her Pazartesi, son 12 haftanın snapshot'larından İstanbul yerel saatine göre her otopark × her (gün, saat) çifti için gerçek ortalama doluluk hesaplanır
+4. **Eksik slot interpolasyonu**: Henüz veri toplanmamış saatler, komşu saatlerden ve aynı saatteki diğer günlerden interpolasyonla doldurulur
+5. **Artifact + checkpoint zinciri**: SQLite saatlik Git commitleri yerine kısa ömürlü artifact olarak taşınır; haftalık repo checkpoint'i zincir koparsa kurtarma noktası sağlar
 
 ```
 İSPARK API ──(her saat)──→ SQLite DB ──(her Pazartesi)──→ parking_week.json
@@ -123,16 +121,6 @@ pnpm build-profiles:force # Yeterli veri olmasa da profil oluştur
 pnpm fetch-data           # Eski simülasyon yöntemiyle veri çek (yedek)
 ```
 
-## Opsiyonel: İzokronlar
-
-İzokron görünümü (herhangi bir noktadan araba/bisiklet/yürüyüş erişilebilirliği) bir yönlendirme motoruna ihtiyaç duyar. Repo, [Valhalla](https://github.com/valhalla/valhalla) için bir `docker-compose.yml` içerir:
-
-```bash
-docker compose up -d           # İlk çalıştırmada Türkiye OSM verisini indirir
-```
-
-İzokronları umursamıyorsanız, bu adımı atlayın — uygulama sorunsuz çalışmaya devam eder.
-
 ## Dikkat edilmesi gerekenler
 
 - **Veriler gerçek ve otomatik güncellenir.** GitHub Actions ile saatte bir İSPARK API'sinden çekilen anlık doluluk verileri toplanır, haftada bir gerçek ortalama profiller hesaplanır. Yeni toplanan verilerde ilk hafta bazı saatler eksik olabilir; bu slotlar komşu saatlerden interpolasyonla doldurulur.
@@ -149,4 +137,3 @@ MIT — [LICENSE](LICENSE) dosyasına bakın.
 - Bu proje [wolfiesch/sf-parking-heatmap](https://github.com/wolfiesch/sf-parking-heatmap) temel alınarak İstanbul için uyarlanmıştır. Orijinal San Francisco versiyonunu geliştiren **Wolfgang Schoenberger**'e teşekkürler.
 - [İBB Açık Veri Portalı](https://data.ibb.gov.tr) ve İSPARK API'si
 - [deck.gl](https://deck.gl), [MapLibre](https://maplibre.org) ve [CARTO basemaps](https://carto.com/basemaps/) açık haritalama altyapısı
-- [Valhalla](https://github.com/valhalla/valhalla) yönlendirme motoru
